@@ -1,0 +1,237 @@
+{
+  "jobDescriptions": [
+    {
+      "id": "1",
+      "position": "Senior Software Engineer",
+      "jobBand": "JB 3",
+      "jobGrade": "JG 3.2 Senior",
+      "locationId": "1",
+      "departmentId": "1",
+      "teamId": "1",
+      "directSupervisor": "Engineering Manager",
+      "jobPurpose": "Lead software development projects and mentor junior developers while delivering high-quality solutions.",
+      "status": "published",
+      "createdBy": "1",
+      "createdAt": "2024-01-15T10:00:00Z",
+      "updatedAt": "2024-01-15T10:00:00Z",
+      "responsibilities": [
+        {
+          "category": "strategic",
+          "description": "Define technical architecture and development standards"
+        },
+        {
+          "category": "team_management",
+          "description": "Mentor junior developers and conduct code reviews"
+        },
+        {
+          "category": "general",
+          "description": "Develop and maintain software applications"
+        }
+      ],
+      "risks": [
+        {
+          "type": "external",
+          "description": "Technology changes rapidly requiring constant learning"
+        },
+        {
+          "type": "internal",
+          "description": "High workload during project deadlines"
+        }
+      ],
+      "competencies": [
+        {
+          "competencyId": "1",
+          "score": 4,
+          "notes": "Strong technical leadership skills"
+        },
+        {
+          "competencyId": "2",
+          "score": 3,
+          "notes": "Good communication with stakeholders"
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "position": "Marketing Specialist",
+      "jobBand": "JB 2",
+      "jobGrade": "JG 2.1 Staff",
+      "locationId": "1",
+      "departmentId": "2",
+      "teamId": "2",
+      "directSupervisor": "Marketing Manager",
+      "jobPurpose": "Execute marketing campaigns and analyze market trends to drive business growth.",
+      "status": "draft",
+      "createdBy": "1",
+      "createdAt": "2024-01-10T14:30:00Z",
+      "updatedAt": "2024-01-12T09:15:00Z",
+      "responsibilities": [
+        {
+          "category": "strategic",
+          "description": "Develop marketing strategies for target audiences"
+        },
+        {
+          "category": "general",
+          "description": "Create and manage marketing campaigns"
+        },
+        {
+          "category": "efficiency",
+          "description": "Analyze campaign performance and optimize ROI"
+        }
+      ],
+      "risks": [
+        {
+          "type": "external",
+          "description": "Market conditions and consumer behavior changes"
+        },
+        {
+          "type": "internal",
+          "description": "Budget constraints affecting campaign reach"
+        }
+      ],
+      "competencies": [
+        {
+          "competencyId": "1",
+          "score": 3,
+          "notes": "Developing leadership skills"
+        },
+        {
+          "competencyId": "2",
+          "score": 4,
+          "notes": "Excellent communication and presentation skills"
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "position": "Data Analyst",
+      "jobBand": "JB 2",
+      "jobGrade": "JG 2.2 Senior Staff",
+      "locationId": "2",
+      "departmentId": "1",
+      "teamId": "3",
+      "directSupervisor": "Data Science Manager",
+      "jobPurpose": "Analyze business data to provide insights and support data-driven decision making.",
+      "status": "published",
+      "createdBy": "2",
+      "createdAt": "2024-01-08T11:20:00Z",
+      "updatedAt": "2024-01-08T11:20:00Z",
+      "responsibilities": [
+        {
+          "category": "strategic",
+          "description": "Identify data trends and business opportunities"
+        },
+        {
+          "category": "general",
+          "description": "Create reports and dashboards for stakeholders"
+        },
+        {
+          "category": "efficiency",
+          "description": "Automate data collection and analysis processes"
+        }
+      ],
+      "risks": [
+        {
+          "type": "external",
+          "description": "Data privacy regulations and compliance requirements"
+        },
+        {
+          "type": "internal",
+          "description": "Data quality issues affecting analysis accuracy"
+        }
+      ],
+      "competencies": [
+        {
+          "competencyId": "1",
+          "score": 2,
+          "notes": "Growing analytical thinking skills"
+        },
+        {
+          "competencyId": "2",
+          "score": 3,
+          "notes": "Good at presenting data insights"
+        }
+      ]
+    }
+  ],
+  "locations": [
+    {
+      "id": "1",
+      "name": "Bangkok Office",
+      "address": "123 Business District, Bangkok"
+    },
+    {
+      "id": "2",
+      "name": "Chiang Mai Office",
+      "address": "456 Tech Park, Chiang Mai"
+    }
+  ],
+  "departments": [
+    {
+      "id": "1",
+      "name": "Engineering",
+      "description": "Software development and technical operations"
+    },
+    {
+      "id": "2",
+      "name": "Marketing",
+      "description": "Marketing and business development"
+    }
+  ],
+  "teams": [
+    {
+      "id": "1",
+      "name": "Frontend Team",
+      "department_id": "1",
+      "description": "User interface and experience development"
+    },
+    {
+      "id": "2",
+      "name": "Digital Marketing",
+      "department_id": "2",
+      "description": "Online marketing and social media"
+    },
+    {
+      "id": "3",
+      "name": "Data Team",
+      "department_id": "1",
+      "description": "Data analysis and business intelligence"
+    }
+  ],
+  "competencies": [
+    {
+      "id": "1",
+      "name": "Leadership",
+      "description": "Ability to lead and inspire others"
+    },
+    {
+      "id": "2",
+      "name": "Communication",
+      "description": "Effective verbal and written communication"
+    },
+    {
+      "id": "3",
+      "name": "Problem Solving",
+      "description": "Analytical thinking and solution development"
+    },
+    {
+      "id": "4",
+      "name": "Teamwork",
+      "description": "Collaboration and team coordination"
+    }
+  ],
+  "users": [
+    {
+      "id": "1",
+      "email": "admin@company.com",
+      "full_name": "Admin User",
+      "role": "admin"
+    },
+    {
+      "id": "2",
+      "email": "manager@company.com",
+      "full_name": "Manager User",
+      "role": "manager"
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    font-family: 'Prompt', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  }
+
+  body {
+    font-family: 'Prompt', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  }
+}
+
+/* Print Styles */
+@media print {
+  @page {
+    size: A4;
+    margin: 1cm;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    background: white !important;
+  }
+
+  /* Hide sidebar and navigation */
+  nav,
+  aside,
+  .sidebar {
+    display: none !important;
+  }
+
+  /* Ensure content takes full width */
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Remove shadows and borders for cleaner print */
+  .shadow-sm,
+  .shadow,
+  .shadow-md,
+  .shadow-lg {
+    box-shadow: none !important;
+  }
+
+  /* Ensure recharts SVG renders properly */
+  .recharts-wrapper,
+  .recharts-surface {
+    overflow: visible !important;
+  }
+
+  .recharts-wrapper svg {
+    overflow: visible !important;
+  }
+
+  /* Spider chart specific styles */
+  .recharts-polar-grid-angle line,
+  .recharts-polar-grid-concentric circle {
+    stroke: #e5e7eb !important;
+  }
+
+  .recharts-radar-polygon {
+    fill: #f59e0b !important;
+    fill-opacity: 0.5 !important;
+    stroke: #f59e0b !important;
+    stroke-width: 2 !important;
+  }
+
+  /* Prevent page breaks inside important sections */
+  .border-t {
+    page-break-inside: avoid;
+  }
+
+  /* Ensure backgrounds print */
+  .bg-white\/60,
+  .bg-white {
+    background: white !important;
+  }
+
+  .backdrop-blur-sm {
+    backdrop-filter: none !important;
+  }
+}

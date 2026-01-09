@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Edit API</title>
+</head>
+<body>
+    <h1>Test Edit Job Description API</h1>
+    <div>
+        <label>Job Description ID:</label>
+        <input type="text" id="jdId" placeholder="Enter JD ID">
+        <button onclick="testGetById()">Test Get By ID</button>
+    </div>
+    <div>
+        <h2>Result:</h2>
+        <pre id="result"></pre>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        // Get Supabase credentials from .env
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        window.testGetById = async function() {
+            const jdId = document.getElementById('jdId').value;
+            const resultDiv = document.getElementById('result');
+            
+            if (!jdId) {
+                resultDiv.textContent = 'Please enter a JD ID';
+                return;
+            }
+
+            try {
+                resultDiv.textContent = 'Loading...';
+                
+                // Test 1: Get main JD data
+                console.log('Test 1: Getting main JD data...');
+                const { data: jdData, error: jdError } = await supabase
+                    .from('job_descriptions')
+                    .select('*')
+                    .eq('id', jdId)
+                    .single();
+
+                if (jdError) {
+                    throw jdError;
+                }
+
+                console.log('JD Data:', jdData);
+
+                // Test 2: Get responsibilities
+                console.log('Test 2: Getting responsibilities...');
+                const { data: responsibilities, error: respError } = await supabase
+                    .from('jd_responsibilities')
+                    .select('*')
+                    .eq('jd_id', jdId)
+                    .order('order_index');
+
+                if (respError) {
+                    console.error('Responsibilities error:', respError);
+                }
+
+                console.log('Responsibilities:', responsibilities);
+
+                // Test 3: Get risks
+                console.log('Test 3: Getting risks...');
+                const { data: risks, error: risksError } = await supabase
+                    .from('jd_risks')
+                    .select('*')
+                    .eq('jd_id', jdId)
+                    .order('order_index');
+
+                if (risksError) {
+                    console.error('Risks error:', risksError);
+                }
+
+                console.log('Risks:', risks);
+
+                // Test 4: Get competencies
+                console.log('Test 4: Getting competencies...');
+                const { data: competencies, error: compError } = await supabase
+                    .from('jd_competencies')
+                    .select('*')
+                    .eq('jd_id', jdId);
+
+                if (compError) {
+                    console.error('Competencies error:', compError);
+                }
+
+                console.log('Competencies:', competencies);
+
+                // Display result
+                const result = {
+                    jd: jdData,
+                    responsibilities: responsibilities || [],
+                    risks: risks || [],
+                    competencies: competencies || []
+                };
+
+                resultDiv.textContent = JSON.stringify(result, null, 2);
+
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.textContent = 'Error: ' + error.message;
+            }
+        };
+    </script>
+</body>
+</html>
