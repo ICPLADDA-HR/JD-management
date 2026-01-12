@@ -6,7 +6,6 @@ interface DashboardStats {
   totalJDs: number;
   publishedJDs: number;
   draftJDs: number;
-  archivedJDs: number;
   totalUsers: number;
   activeUsers: number;
   totalDepartments: number;
@@ -17,10 +16,10 @@ interface DashboardStats {
   jdsByDepartmentAndStatus: Array<{ 
     name: string; 
     published: number; 
-    draft: number; 
-    archived: number;
+    draft: number;
     total: number;
   }>;
+  jdsByJobGrade: Array<{ name: string; count: number }>;
   topCompetencies: Array<{ name: string; count: number }>;
 }
 
@@ -29,7 +28,6 @@ export const useDashboardStats = () => {
     totalJDs: 0,
     publishedJDs: 0,
     draftJDs: 0,
-    archivedJDs: 0,
     totalUsers: 0,
     activeUsers: 0,
     totalDepartments: 0,
@@ -38,6 +36,7 @@ export const useDashboardStats = () => {
     jdsByDepartment: [],
     jdsByStatus: [],
     jdsByDepartmentAndStatus: [],
+    jdsByJobGrade: [],
     topCompetencies: [],
   });
   const [loading, setLoading] = useState(true);
@@ -60,7 +59,6 @@ export const useDashboardStats = () => {
       const totalJDs = jds?.length || 0;
       const publishedJDs = jds?.filter((jd) => jd.status === 'published').length || 0;
       const draftJDs = jds?.filter((jd) => jd.status === 'draft').length || 0;
-      const archivedJDs = jds?.filter((jd) => jd.status === 'archived').length || 0;
 
       // Count JDs by department
       const deptCounts = jds?.reduce((acc: Record<string, number>, jd: any) => {
@@ -78,18 +76,16 @@ export const useDashboardStats = () => {
       const jdsByStatus = [
         { status: 'Published', count: publishedJDs },
         { status: 'Draft', count: draftJDs },
-        { status: 'Archived', count: archivedJDs },
       ];
 
       // Count JDs by department AND status (for stacked bar chart)
-      const deptStatusCounts = jds?.reduce((acc: Record<string, { published: number; draft: number; archived: number }>, jd: any) => {
+      const deptStatusCounts = jds?.reduce((acc: Record<string, { published: number; draft: number }>, jd: any) => {
         const deptName = jd.department?.name || 'Unknown';
         if (!acc[deptName]) {
-          acc[deptName] = { published: 0, draft: 0, archived: 0 };
+          acc[deptName] = { published: 0, draft: 0 };
         }
         if (jd.status === 'published') acc[deptName].published++;
         else if (jd.status === 'draft') acc[deptName].draft++;
-        else if (jd.status === 'archived') acc[deptName].archived++;
         return acc;
       }, {});
 
@@ -98,10 +94,31 @@ export const useDashboardStats = () => {
           name,
           published: counts.published,
           draft: counts.draft,
-          archived: counts.archived,
-          total: counts.published + counts.draft + counts.archived,
+          total: counts.published + counts.draft,
         }))
         .sort((a, b) => b.total - a.total);
+
+      // Count JDs by Job Grade
+      const jobGradeCounts = jds?.reduce((acc: Record<string, number>, jd: any) => {
+        const jobGrade = jd.job_grade || 'Unknown';
+        acc[jobGrade] = (acc[jobGrade] || 0) + 1;
+        return acc;
+      }, {});
+
+      const jdsByJobGrade = Object.entries(jobGradeCounts || {})
+        .map(([name, count]) => ({ name, count: count as number }))
+        .sort((a, b) => {
+          // Sort by job grade number (e.g., JG 1.1, JG 1.2, etc.)
+          const aMatch = a.name.match(/(\d+)\.(\d+)/);
+          const bMatch = b.name.match(/(\d+)\.(\d+)/);
+          if (aMatch && bMatch) {
+            const aMajor = parseInt(aMatch[1]);
+            const bMajor = parseInt(bMatch[1]);
+            if (aMajor !== bMajor) return aMajor - bMajor;
+            return parseInt(aMatch[2]) - parseInt(bMatch[2]);
+          }
+          return a.name.localeCompare(b.name);
+        });
 
       // Fetch user stats
       const { data: users, error: userError } = await supabase
@@ -160,7 +177,6 @@ export const useDashboardStats = () => {
         totalJDs,
         publishedJDs,
         draftJDs,
-        archivedJDs,
         totalUsers,
         activeUsers,
         totalDepartments: deptCount || 0,
@@ -169,6 +185,7 @@ export const useDashboardStats = () => {
         jdsByDepartment,
         jdsByStatus,
         jdsByDepartmentAndStatus,
+        jdsByJobGrade,
         topCompetencies,
       });
     } catch (error: any) {

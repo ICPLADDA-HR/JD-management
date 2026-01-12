@@ -18,7 +18,7 @@ export type JobGrade =
   | 'JG 4.2 Vice President'
   | 'JG 5 President';
 
-export type JDStatus = 'draft' | 'published' | 'archived';
+export type JDStatus = 'draft' | 'published';
 
 export type ResponsibilityCategory =
   | 'key'

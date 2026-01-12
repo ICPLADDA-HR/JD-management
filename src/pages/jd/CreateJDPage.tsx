@@ -20,8 +20,6 @@ import type {
 } from '../../types';
 import toast from 'react-hot-toast';
 
-const JOB_BANDS: JobBand[] = ['JB 1', 'JB 2', 'JB 3', 'JB 4', 'JB 5'];
-
 interface ResponsibilityItem {
   description: string;
 }

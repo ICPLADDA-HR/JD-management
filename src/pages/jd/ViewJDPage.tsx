@@ -12,7 +12,6 @@ import {
   ArrowLeft,
   Edit2,
   Trash2,
-  Archive,
   FileText,
   Calendar,
   MapPin,
@@ -22,6 +21,24 @@ import {
   Download,
   Share2,
   Printer,
+  Info,
+  Target,
+  ClipboardList,
+  Award,
+  AlertTriangle,
+  Lightbulb,
+  UsersRound,
+  Briefcase,
+  Palette,
+  Zap,
+  MoreHorizontal,
+  TrendingUp,
+  MessageSquare,
+  Eye,
+  Brain,
+  Compass,
+  Globe,
+  Home,
 } from 'lucide-react';
 import type { JobDescriptionAPI } from '../../types';
 
@@ -29,7 +46,7 @@ export const ViewJDPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { getJobDescription, deleteJobDescription, archiveJobDescription } = useJobDescriptions();
+  const { getJobDescription, deleteJobDescription } = useJobDescriptions();
   const { locations } = useLocations();
   const { departments } = useDepartments();
   const { teams } = useTeams();
@@ -120,6 +137,15 @@ export const ViewJDPage = () => {
           page-break-after: avoid !important;
           orphans: 3 !important;
           widows: 3 !important;
+          display: flex !important;
+          align-items: center !important;
+          gap: 8px !important;
+        }
+        
+        .print-section h3 svg {
+          width: 18px !important;
+          height: 18px !important;
+          opacity: 0.8 !important;
         }
         
         /* Content boxes - Allow breaking if needed */
@@ -221,6 +247,15 @@ export const ViewJDPage = () => {
           color: #1a1a1a !important;
           margin-bottom: 8px !important;
           page-break-after: avoid !important;
+          display: flex !important;
+          align-items: center !important;
+          gap: 6px !important;
+        }
+        
+        h4 svg {
+          width: 14px !important;
+          height: 14px !important;
+          opacity: 0.7 !important;
         }
         
         p {
@@ -320,16 +355,6 @@ export const ViewJDPage = () => {
     }
   };
 
-  const handleArchive = async () => {
-    if (!jd) return;
-    try {
-      await archiveJobDescription(jd.id);
-      await loadJobDescription(); // Reload to show updated status
-    } catch (error) {
-      // Error is handled in the hook
-    }
-  };
-
   const handlePrint = () => {
     window.print();
   };
@@ -338,7 +363,6 @@ export const ViewJDPage = () => {
     const styles = {
       draft: 'bg-yellow-100 text-yellow-800',
       published: 'bg-green-100 text-green-800',
-      archived: 'bg-gray-100 text-gray-800',
     };
 
     return (
@@ -372,6 +396,30 @@ export const ViewJDPage = () => {
 
   const getCompetencyName = (competencyId: string) => {
     return competencies.find(comp => comp.id === competencyId)?.name || 'Unknown';
+  };
+
+  const getCategoryIcon = (category: string) => {
+    const iconMap: Record<string, React.ReactNode> = {
+      'strategic': <Lightbulb className="w-4 h-4" />,
+      'team_management': <UsersRound className="w-4 h-4" />,
+      'general': <Briefcase className="w-4 h-4" />,
+      'culture': <Palette className="w-4 h-4" />,
+      'efficiency': <Zap className="w-4 h-4" />,
+      'other': <MoreHorizontal className="w-4 h-4" />,
+    };
+    return iconMap[category] || <Briefcase className="w-4 h-4" />;
+  };
+
+  const getCompetencyIcon = (competencyName: string) => {
+    const iconMap: Record<string, React.ReactNode> = {
+      'Execution': <TrendingUp className="w-4 h-4" />,
+      'Communication': <MessageSquare className="w-4 h-4" />,
+      'Self Awareness': <Eye className="w-4 h-4" />,
+      'Leadership': <Compass className="w-4 h-4" />,
+      'Business Mind': <Brain className="w-4 h-4" />,
+      'Long-term Thinking': <Lightbulb className="w-4 h-4" />,
+    };
+    return iconMap[competencyName] || <Award className="w-4 h-4" />;
   };
 
   const getScoreColor = (score: number) => {
@@ -435,16 +483,6 @@ export const ViewJDPage = () => {
           >
             Share
           </Button>
-          {canEdit && jd.status !== 'archived' && (
-            <Button
-              variant="ghost"
-              onClick={handleArchive}
-              icon={<Archive className="w-4 h-4" />}
-              className="text-yellow-600 hover:text-yellow-700"
-            >
-              Archive
-            </Button>
-          )}
           {canEdit && (
             <Button
               variant="ghost"
@@ -499,7 +537,10 @@ export const ViewJDPage = () => {
         <div className="p-8 space-y-8 print-content">
           {/* Basic Information */}
           <div className="print-section">
-            <h3 className="text-lg font-semibold text-primary-600 mb-3">Basic Information</h3>
+            <h3 className="text-lg font-semibold text-primary-600 mb-3 flex items-center gap-2">
+              <Info className="w-5 h-5" />
+              Basic Information
+            </h3>
             <div className="bg-primary-50/50 rounded-lg p-4">
               <div className="space-y-2">
                 <div className="flex items-center">
@@ -525,7 +566,10 @@ export const ViewJDPage = () => {
 
           {/* Job Purpose */}
           <div className="print-section">
-            <h3 className="text-lg font-semibold text-primary-600 mb-3">Job Purpose (วัตถุประสงค์ของงาน)</h3>
+            <h3 className="text-lg font-semibold text-primary-600 mb-3 flex items-center gap-2">
+              <Target className="w-5 h-5" />
+              Job Purpose (วัตถุประสงค์ของงาน)
+            </h3>
             <div className="bg-primary-50/50 rounded-lg p-4">
               <p className="text-primary-700 leading-relaxed">{jd.job_purpose}</p>
             </div>
@@ -534,7 +578,10 @@ export const ViewJDPage = () => {
           {/* Responsibilities */}
           {jd.responsibilities && jd.responsibilities.length > 0 && (
             <div className="print-section">
-              <h3 className="text-lg font-semibold text-primary-600 mb-4">Responsibilities (หน้าที่ความรับผิดชอบ)</h3>
+              <h3 className="text-lg font-semibold text-primary-600 mb-4 flex items-center gap-2">
+                <ClipboardList className="w-5 h-5" />
+                Responsibilities (หน้าที่ความรับผิดชอบ)
+              </h3>
               <div className="space-y-4">
                 {Object.entries(
                   jd.responsibilities.reduce((acc, resp) => {
@@ -555,7 +602,8 @@ export const ViewJDPage = () => {
                   
                   return (
                     <div key={category} className="bg-primary-50/50 rounded-lg p-4">
-                      <h4 className="font-medium text-primary-600 mb-2">
+                      <h4 className="font-medium text-primary-600 mb-2 flex items-center gap-2">
+                        {getCategoryIcon(category)}
                         {categoryLabels[category] || category.replace('_', ' ')}
                       </h4>
                       <ul className="space-y-1">
@@ -576,7 +624,8 @@ export const ViewJDPage = () => {
           {/* Competencies */}
           {jd.competencies && jd.competencies.length > 0 && (
             <div className="print-section">
-              <h3 className="text-lg font-semibold text-primary-600 mb-4">
+              <h3 className="text-lg font-semibold text-primary-600 mb-4 flex items-center gap-2">
+                <Award className="w-5 h-5" />
                 Core Competencies (สมรรถนะหลัก)
               </h3>
               
@@ -587,21 +636,25 @@ export const ViewJDPage = () => {
 
               {/* Competency Details */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {jd.competencies.map((comp, index) => (
-                  <div key={index} className="bg-primary-50/50 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium text-primary-600">
-                        {getCompetencyName(comp.competency_id)}
-                      </h4>
-                      <span className={`font-bold ${getScoreColor(comp.score)}`}>
-                        {comp.score}/5
-                      </span>
+                {jd.competencies.map((comp, index) => {
+                  const compName = getCompetencyName(comp.competency_id);
+                  return (
+                    <div key={index} className="bg-primary-50/50 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-medium text-primary-600 flex items-center gap-2">
+                          {getCompetencyIcon(compName)}
+                          {compName}
+                        </h4>
+                        <span className={`font-bold ${getScoreColor(comp.score)}`}>
+                          {comp.score}/5
+                        </span>
+                      </div>
+                      {comp.notes && (
+                        <p className="text-sm text-primary-500">{comp.notes}</p>
+                      )}
                     </div>
-                    {comp.notes && (
-                      <p className="text-sm text-primary-500">{comp.notes}</p>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -609,13 +662,19 @@ export const ViewJDPage = () => {
           {/* Risks */}
           {jd.risks && jd.risks.length > 0 && (
             <div className="print-section">
-              <h3 className="text-lg font-semibold text-primary-600 mb-4">Risk Factors (ความเสี่ยง)</h3>
+              <h3 className="text-lg font-semibold text-primary-600 mb-4 flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5" />
+                Risk Factors (ความเสี่ยง)
+              </h3>
               <div className="space-y-4">
                 {/* External Risks */}
                 {jd.risks.filter(r => r.type === 'external').length > 0 && (
                   <div className="rounded-lg overflow-hidden border border-red-200">
                     <div className="bg-red-50 px-4 py-2 border-l-4 border-red-500">
-                      <h4 className="font-semibold text-red-600">External Risks (ความเสี่ยงภายนอก)</h4>
+                      <h4 className="font-semibold text-red-600 flex items-center gap-2">
+                        <Globe className="w-4 h-4" />
+                        External Risks (ความเสี่ยงภายนอก)
+                      </h4>
                     </div>
                     <ul className="p-4 space-y-2 bg-white">
                       {jd.risks.filter(r => r.type === 'external').map((item, index) => (
@@ -631,7 +690,10 @@ export const ViewJDPage = () => {
                 {jd.risks.filter(r => r.type === 'internal').length > 0 && (
                   <div className="rounded-lg overflow-hidden border border-blue-200">
                     <div className="bg-blue-50 px-4 py-2 border-l-4 border-blue-500">
-                      <h4 className="font-semibold text-blue-600">Internal Risks (ความเสี่ยงภายใน)</h4>
+                      <h4 className="font-semibold text-blue-600 flex items-center gap-2">
+                        <Home className="w-4 h-4" />
+                        Internal Risks (ความเสี่ยงภายใน)
+                      </h4>
                     </div>
                     <ul className="p-4 space-y-2 bg-white">
                       {jd.risks.filter(r => r.type === 'internal').map((item, index) => (

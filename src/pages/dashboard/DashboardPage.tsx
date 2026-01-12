@@ -10,7 +10,6 @@ import {
   Activity,
   CheckCircle,
   FileEdit,
-  Archive,
   Plus,
   TrendingUp,
 } from 'lucide-react';
@@ -66,7 +65,7 @@ export const DashboardPage = () => {
       )}
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {/* Total JDs */}
         <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-primary-100 p-6">
           <div className="flex items-center justify-between mb-4">
@@ -99,17 +98,6 @@ export const DashboardPage = () => {
           </div>
           <h3 className="text-caption font-medium text-primary-400 mb-1">Drafts</h3>
           <p className="text-heading-2 font-bold text-yellow-600">{stats.draftJDs}</p>
-        </div>
-
-        {/* Archived JDs */}
-        <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-primary-100 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-gray-100 rounded-xl">
-              <Archive className="w-6 h-6 text-gray-600" />
-            </div>
-          </div>
-          <h3 className="text-caption font-medium text-primary-400 mb-1">Archived</h3>
-          <p className="text-heading-2 font-bold text-gray-600">{stats.archivedJDs}</p>
         </div>
       </div>
 
@@ -156,7 +144,7 @@ export const DashboardPage = () => {
       {/* Charts Row */}
       <div className="mb-8">
         {/* Combined JDs by Department and Status - Stacked Bar Chart */}
-        <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-primary-100 p-6">
+        <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-primary-100 p-6 mb-6">
           <h2 className="text-body-lg font-semibold text-primary-600 mb-4">
             JDs by Department and Status
           </h2>
@@ -246,6 +234,68 @@ export const DashboardPage = () => {
             </>
           ) : (
             <div className="h-[400px] flex items-center justify-center text-primary-400">
+              <p className="text-body-sm">No data available</p>
+            </div>
+          )}
+        </div>
+
+        {/* JDs by Job Grade - Bar Chart */}
+        <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-primary-100 p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-body-lg font-semibold text-primary-600">
+              JDs by Job Grade
+            </h2>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded bg-purple-500"></div>
+              <span className="text-caption text-primary-400">จำนวน JDs</span>
+            </div>
+          </div>
+          {stats.jdsByJobGrade.length > 0 ? (
+            <>
+              <ResponsiveContainer width="100%" height={350}>
+                <BarChart data={stats.jdsByJobGrade}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                  <XAxis 
+                    dataKey="name" 
+                    tick={{ fontSize: 11 }}
+                    angle={-45}
+                    textAnchor="end"
+                    height={80}
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 12 }}
+                    allowDecimals={false}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                      border: '1px solid #E5E7EB',
+                      borderRadius: '12px',
+                      padding: '8px 12px',
+                    }}
+                    formatter={(value: number | undefined) => value !== undefined ? [`${value} JDs`, 'จำนวน'] : ['', '']}
+                  />
+                  <Bar dataKey="count" fill="#9333ea" radius={[8, 8, 0, 0]}>
+                    <LabelList 
+                      dataKey="count" 
+                      position="top" 
+                      style={{ fill: '#6b7280', fontSize: '11px', fontWeight: 'bold' }}
+                      formatter={(value: any) => value > 0 ? value : ''}
+                    />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+              
+              {/* Total Summary */}
+              <div className="mt-4 pt-4 border-t border-primary-100 text-center">
+                <p className="text-caption text-primary-400">Total Job Grades with JDs</p>
+                <p className="text-heading-3 font-bold text-primary-600 mt-1">
+                  {stats.jdsByJobGrade.length}
+                </p>
+              </div>
+            </>
+          ) : (
+            <div className="h-[350px] flex items-center justify-center text-primary-400">
               <p className="text-body-sm">No data available</p>
             </div>
           )}

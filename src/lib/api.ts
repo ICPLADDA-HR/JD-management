@@ -11,6 +11,8 @@ import type {
   Team,
   Competency,
   User,
+  JobBandEntity,
+  JobGradeEntity,
 } from '../types';
 
 // Job Descriptions API
@@ -445,9 +447,9 @@ export const jobDescriptionsAPI = {
     }
   },
 
-  // Archive job description
+  // Archive job description (deprecated - converts to draft)
   archive: async (id: string): Promise<JobDescriptionAPI> => {
-    return jobDescriptionsAPI.patch(id, { status: 'archived' });
+    return jobDescriptionsAPI.patch(id, { status: 'draft' });
   },
 
   // Publish job description

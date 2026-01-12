@@ -16,13 +16,12 @@ import {
   Eye,
   Edit,
   Trash2,
-  Archive,
   FileText,
   Calendar,
   MapPin,
   Building2,
 } from 'lucide-react';
-import type { JobDescriptionFilters, JDStatus } from '../../types';
+import type { JobDescriptionFilters, JDStatus, JobBand } from '../../types';
 
 export const BrowseJDPage = () => {
   const { user } = useAuth();
@@ -32,7 +31,6 @@ export const BrowseJDPage = () => {
     error, 
     fetchJobDescriptions, 
     deleteJobDescription, 
-    archiveJobDescription,
     publishJobDescription 
   } = useJobDescriptions();
   const { locations } = useLocations();
@@ -69,7 +67,7 @@ export const BrowseJDPage = () => {
     if (key === 'jobBand') {
       setFilters(prev => ({ 
         ...prev, 
-        jobBand: value || undefined,
+        jobBand: (value || undefined) as JobBand | undefined,
         jobGrade: undefined // Clear job grade when band changes
       }));
     } else {
@@ -93,14 +91,6 @@ export const BrowseJDPage = () => {
     }
   };
 
-  const handleArchive = async (id: string) => {
-    try {
-      await archiveJobDescription(id);
-    } catch (error) {
-      // Error is handled in the hook
-    }
-  };
-
   const handlePublish = async (id: string) => {
     try {
       await publishJobDescription(id);
@@ -113,7 +103,6 @@ export const BrowseJDPage = () => {
     const styles = {
       draft: 'bg-yellow-100 text-yellow-800',
       published: 'bg-green-100 text-green-800',
-      archived: 'bg-gray-100 text-gray-800',
     };
 
     return (
@@ -216,7 +205,6 @@ export const BrowseJDPage = () => {
                 <option value="">All Status</option>
                 <option value="draft">Draft</option>
                 <option value="published">Published</option>
-                <option value="archived">Archived</option>
               </Select>
 
               <Select
@@ -379,18 +367,6 @@ export const BrowseJDPage = () => {
                                 className="text-green-600 hover:text-green-700"
                               >
                                 Publish
-                              </Button>
-                            )}
-
-                            {jd.status !== 'archived' && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleArchive(jd.id)}
-                                icon={<Archive className="w-4 h-4" />}
-                                className="text-yellow-600 hover:text-yellow-700"
-                              >
-                                Archive
                               </Button>
                             )}
 
