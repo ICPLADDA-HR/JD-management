@@ -573,7 +573,7 @@ export const CreateJDPage = () => {
           </div>
           
           {/* Custom Asset Input */}
-          <div className="mt-4 flex gap-2">
+          <div className="mt-4 flex gap-2 max-w-md">
             <Input
               value={newCustomAsset}
               onChange={(e) => setNewCustomAsset(e.target.value)}
