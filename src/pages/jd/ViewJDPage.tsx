@@ -583,6 +583,22 @@ export const ViewJDPage = () => {
                   <MapPin className="w-4 h-4 lg:w-5 lg:h-5" />
                   {getLocationName(jd.location_id)}
                 </span>
+                <span className="text-accent-200">|</span>
+                <span className="flex items-center gap-2">
+                  <Users className="w-4 h-4 lg:w-5 lg:h-5" />
+                  <span className="font-medium">Team:</span>
+                  {getTeamName(jd.team_id)}
+                </span>
+                {jd.direct_supervisor && (
+                  <>
+                    <span className="text-accent-200">|</span>
+                    <span className="flex items-center gap-2">
+                      <User className="w-4 h-4 lg:w-5 lg:h-5" />
+                      <span className="font-medium">Supervisor:</span>
+                      {jd.direct_supervisor}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
 
@@ -601,36 +617,16 @@ export const ViewJDPage = () => {
                 )}
               </div>
 
-              {/* Info - Responsive Layout */}
-              <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-4 text-accent-50 text-sm lg:text-base">
-                <span className="flex items-center gap-2">
-                  <Users className="w-4 h-4 lg:w-5 lg:h-5" />
-                  <span className="font-medium">Team:</span>
-                  {getTeamName(jd.team_id)}
-                </span>
-                
-                {jd.direct_supervisor && (
-                  <>
-                    <span className="hidden lg:inline text-accent-200">|</span>
-                    <span className="flex items-center gap-2">
-                      <User className="w-4 h-4 lg:w-5 lg:h-5" />
-                      <span className="font-medium">Supervisor:</span>
-                      {jd.direct_supervisor}
-                    </span>
-                  </>
-                )}
-                
-                <span className="hidden lg:inline text-accent-200">|</span>
+              {/* Info - Published and Updated */}
+              <div className="flex flex-col lg:items-end gap-2 text-accent-50 text-sm lg:text-base">
                 <span className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 lg:w-5 lg:h-5" />
                   <span className="font-medium">Published:</span>
                   {formatDate(jd.created_at)}
                 </span>
-              </div>
-
-              {/* Updated Info */}
-              <div className="text-accent-100 text-xs lg:text-sm">
-                Last updated {formatDate(jd.updated_at)}
+                <div className="text-accent-100 text-xs lg:text-sm">
+                  Last updated {formatDate(jd.updated_at)}
+                </div>
               </div>
             </div>
           </div>
