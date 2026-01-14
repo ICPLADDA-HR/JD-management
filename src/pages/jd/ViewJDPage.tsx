@@ -570,55 +570,51 @@ export const ViewJDPage = () => {
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <h1 className="text-3xl font-bold mb-2">{jd.position}</h1>
-              <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-4 text-accent-100">
-                <div className="flex items-center space-x-4">
-                  <span>{jd.job_band} • {jd.job_grade}</span>
-                  <span>•</span>
-                  <span className="flex items-center">
-                    <Building2 className="w-4 h-4 mr-1" />
-                    {getDepartmentName(jd.department_id)}
-                  </span>
-                  <span>•</span>
-                  <span className="flex items-center">
-                    <MapPin className="w-4 h-4 mr-1" />
-                    {getLocationName(jd.location_id)}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-4 text-accent-100/90 text-sm">
-                  <span className="flex items-center">
-                    <Users className="w-4 h-4 mr-1" />
-                    Team: {getTeamName(jd.team_id)}
-                  </span>
-                  {jd.direct_supervisor && (
-                    <>
-                      <span>•</span>
-                      <span className="flex items-center">
-                        <User className="w-4 h-4 mr-1" />
-                        Supervisor: {jd.direct_supervisor}
-                      </span>
-                    </>
-                  )}
-                  <span>•</span>
-                  <span className="flex items-center">
-                    <Calendar className="w-4 h-4 mr-1" />
-                    Created: {formatDate(jd.created_at)}
-                  </span>
-                </div>
+              <div className="flex items-center space-x-3 text-accent-100 text-sm">
+                <span>{jd.job_band} • {jd.job_grade}</span>
+                <span>•</span>
+                <span className="flex items-center">
+                  <Building2 className="w-3.5 h-3.5 mr-1" />
+                  {getDepartmentName(jd.department_id)}
+                </span>
+                <span>•</span>
+                <span className="flex items-center">
+                  <MapPin className="w-3.5 h-3.5 mr-1" />
+                  {getLocationName(jd.location_id)}
+                </span>
               </div>
             </div>
-            <div className="text-right flex flex-col items-end gap-2 print:hidden ml-4">
-              {getStatusBadge(jd.status)}
-              <div className="text-accent-100 text-sm">
+            <div className="text-right flex flex-col items-end gap-2">
+              <div className="flex items-center gap-2 print:hidden">
+                {getStatusBadge(jd.status)}
+                {canEdit && (
+                  <Link to={`/jd/${jd.id}/edit`}>
+                    <button className="flex items-center gap-1 px-3 py-1.5 text-sm text-white/90 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
+                      <Edit2 className="w-3.5 h-3.5" />
+                      Edit
+                    </button>
+                  </Link>
+                )}
+              </div>
+              <div className="flex flex-col items-end space-y-1 text-accent-100/90 text-sm">
+                <span className="flex items-center">
+                  <Users className="w-3.5 h-3.5 mr-1" />
+                  Team: {getTeamName(jd.team_id)}
+                </span>
+                {jd.direct_supervisor && (
+                  <span className="flex items-center">
+                    <User className="w-3.5 h-3.5 mr-1" />
+                    Supervisor: {jd.direct_supervisor}
+                  </span>
+                )}
+                <span className="flex items-center">
+                  <Calendar className="w-3.5 h-3.5 mr-1" />
+                  Published: {formatDate(jd.created_at)}
+                </span>
+              </div>
+              <div className="text-accent-100 text-xs mt-1">
                 Updated {formatDate(jd.updated_at)}
               </div>
-              {canEdit && (
-                <Link to={`/jd/${jd.id}/edit`}>
-                  <button className="flex items-center gap-1 px-3 py-1.5 text-sm text-white/90 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
-                    <Edit2 className="w-3.5 h-3.5" />
-                    Edit
-                  </button>
-                </Link>
-              )}
             </div>
           </div>
         </div>
