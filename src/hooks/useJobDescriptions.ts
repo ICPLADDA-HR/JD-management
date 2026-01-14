@@ -77,16 +77,28 @@ export const useJobDescriptions = () => {
     setLoading(true);
     setError(null);
     try {
+      console.log('=== Updating Job Description ===');
+      console.log('ID:', id);
+      console.log('Data:', data);
+      
       const updatedJD = await jobDescriptionsAPI.update(id, data);
+      
+      console.log('Update successful:', updatedJD);
       setJobDescriptions(prev => 
         prev.map(jd => jd.id === id ? updatedJD : jd)
       );
       toast.success('Job description updated successfully!');
       return updatedJD;
-    } catch (err) {
-      const errorMessage = 'Failed to update job description';
+    } catch (err: any) {
+      console.error('=== Update Error ===');
+      console.error('Error object:', err);
+      console.error('Error message:', err?.message);
+      console.error('Error details:', err?.details);
+      console.error('Error hint:', err?.hint);
+      
+      const errorMessage = err?.message || 'Failed to update job description';
       setError(errorMessage);
-      toast.error(errorMessage);
+      toast.error(`Update failed: ${errorMessage}`);
       throw err;
     } finally {
       setLoading(false);
