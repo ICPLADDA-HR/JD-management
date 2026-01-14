@@ -134,6 +134,14 @@ export const ViewJDPage = () => {
           break-inside: auto !important;
         }
         
+        /* Force page break before specific sections */
+        .page-break-before {
+          page-break-before: always !important;
+          break-before: page !important;
+          margin-top: 0 !important;
+          padding-top: 0 !important;
+        }
+        
         .print-section h3 {
           font-size: 14pt !important;
           font-weight: 600 !important;
@@ -705,7 +713,7 @@ export const ViewJDPage = () => {
 
           {/* Competencies */}
           {jd.competencies && jd.competencies.length > 0 && (
-            <div className="print-section">
+            <div className="print-section page-break-before">
               <h3 className="text-lg font-semibold text-primary-600 mb-4 flex items-center gap-2">
                 <Award className="w-5 h-5" />
                 Core Competencies (สมรรถนะหลัก)
