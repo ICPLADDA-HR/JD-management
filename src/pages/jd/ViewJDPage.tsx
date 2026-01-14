@@ -691,10 +691,10 @@ export const ViewJDPage = () => {
                   const categoryColors: Record<string, string> = {
                     'strategic': 'text-indigo-600',
                     'team_management': 'text-cyan-600',
-                    'general': 'text-slate-600',
+                    'general': 'text-amber-600',
                     'culture': 'text-rose-600',
                     'efficiency': 'text-emerald-600',
-                    'other': 'text-gray-600'
+                    'other': 'text-violet-600'
                   };
                   
                   return (
