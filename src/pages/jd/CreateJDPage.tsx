@@ -350,7 +350,7 @@ export const CreateJDPage = () => {
       // Combine selected predefined assets and custom assets
       const allAssets = [...selectedAssets, ...customAssets];
 
-      const jdData = {
+      const jdData: any = {
         position,
         job_band: jobBand as JobBand,
         job_grade: jobGrade as JobGrade,
@@ -359,7 +359,6 @@ export const CreateJDPage = () => {
         team_id: teamId,
         direct_supervisor: directSupervisor,
         job_purpose: jobPurpose,
-        company_assets: allAssets.length > 0 ? allAssets : undefined,
         status,
         created_by: user?.id || '550e8400-e29b-41d4-a716-446655440000', // Use test user ID if no auth
         responsibilities: allResponsibilities,
@@ -374,6 +373,11 @@ export const CreateJDPage = () => {
           notes: cs.notes,
         })),
       };
+
+      // Include company_assets if there are any selected
+      if (allAssets.length > 0) {
+        jdData.company_assets = allAssets;
+      }
 
       const createdJD = await createJobDescription(jdData);
       navigate(`/jd/${createdJD.id}`);
