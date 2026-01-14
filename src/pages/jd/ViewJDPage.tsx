@@ -40,6 +40,7 @@ import {
   Globe,
   Home,
   Package,
+  Clock,
 } from 'lucide-react';
 import type { JobDescriptionAPI } from '../../types';
 
@@ -624,9 +625,11 @@ export const ViewJDPage = () => {
                   <span className="font-medium">Published:</span>
                   {formatDate(jd.created_at)}
                 </span>
-                <div className="text-accent-100 text-xs lg:text-sm">
-                  Last updated {formatDate(jd.updated_at)}
-                </div>
+                <span className="flex items-center gap-2 text-accent-100">
+                  <Clock className="w-4 h-4 lg:w-5 lg:h-5" />
+                  <span className="font-medium">Last updated:</span>
+                  {formatDate(jd.updated_at)}
+                </span>
               </div>
             </div>
           </div>
