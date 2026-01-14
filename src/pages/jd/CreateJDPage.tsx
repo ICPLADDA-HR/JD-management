@@ -73,8 +73,6 @@ export const CreateJDPage = () => {
 
   // Company Assets
   const [selectedAssets, setSelectedAssets] = useState<string[]>([]);
-  const [customAssets, setCustomAssets] = useState<string[]>([]); // Custom assets added by user
-  const [newCustomAsset, setNewCustomAsset] = useState(''); // Input for new custom asset
 
   // Responsibilities by category
   const [strategicResponsibilities, setStrategicResponsibilities] = useState<ResponsibilityItem[]>([]);
@@ -112,26 +110,6 @@ export const CreateJDPage = () => {
     return jobGrades
       .filter(g => g.job_band_id === selectedBand.id)
       .map(g => g.name as JobGrade);
-  };
-
-  // Custom asset handlers
-  const handleAddCustomAsset = () => {
-    const trimmedAsset = newCustomAsset.trim();
-    if (trimmedAsset && !customAssets.includes(trimmedAsset)) {
-      const newAssetId = `custom_${Date.now()}`;
-      setCustomAssets([...customAssets, trimmedAsset]);
-      setSelectedAssets([...selectedAssets, newAssetId]);
-      setNewCustomAsset('');
-      toast.success(`เพิ่มทรัพย์สิน "${trimmedAsset}" แล้ว`);
-    }
-  };
-
-  const handleRemoveCustomAsset = (index: number) => {
-    const newCustomAssets = customAssets.filter((_, i) => i !== index);
-    setCustomAssets(newCustomAssets);
-    // Also remove from selected if it was selected
-    const customAssetId = `custom_${index}`;
-    setSelectedAssets(selectedAssets.filter(id => id !== customAssetId));
   };
 
   // Responsibility handlers
@@ -347,9 +325,6 @@ export const CreateJDPage = () => {
         ...internalRisks.filter(r => r.description.trim()).map(r => ({ type: r.type, description: r.description })),
       ];
 
-      // Combine selected predefined assets and custom assets
-      const allAssets = [...selectedAssets, ...customAssets];
-
       const jdData: any = {
         position,
         job_band: jobBand as JobBand,
@@ -375,8 +350,8 @@ export const CreateJDPage = () => {
       };
 
       // Include company_assets if there are any selected
-      if (allAssets.length > 0) {
-        jdData.company_assets = allAssets;
+      if (selectedAssets.length > 0) {
+        jdData.company_assets = selectedAssets;
       }
 
       const createdJD = await createJobDescription(jdData);
@@ -546,59 +521,13 @@ export const CreateJDPage = () => {
                 <span className="ml-2 text-sm font-medium text-gray-900">{asset.name}</span>
               </label>
             ))}
-            {customAssets.map((customAsset, index) => (
-              <label
-                key={`custom_${index}`}
-                className="flex items-center p-3 border-2 border-accent-500 bg-accent-50 rounded-lg"
-              >
-                <input
-                  type="checkbox"
-                  checked={true}
-                  disabled
-                  className="h-4 w-4 text-accent-600 border-gray-300 rounded"
-                />
-                <span className="ml-2 text-sm font-medium text-gray-900 flex-1">{customAsset}</span>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveCustomAsset(index)}
-                  className="ml-2 text-red-500 hover:text-red-700"
-                >
-                  <Trash2 className="w-3 h-3" />
-                </button>
-              </label>
-            ))}
-            {assets.length === 0 && customAssets.length === 0 && (
+            {assets.length === 0 && (
               <div className="col-span-full">
                 <p className="text-sm text-gray-500 italic">
                   ยังไม่มีทรัพย์สินบริษัท กรุณาเพิ่มใน Settings → Company Assets
                 </p>
               </div>
             )}
-          </div>
-          
-          {/* Custom Asset Input */}
-          <div className="mt-4 flex gap-2 max-w-md">
-            <Input
-              value={newCustomAsset}
-              onChange={(e) => setNewCustomAsset(e.target.value)}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  handleAddCustomAsset();
-                }
-              }}
-              placeholder="เพิ่มทรัพย์สินอื่นๆ..."
-              className="flex-1"
-            />
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={handleAddCustomAsset}
-              icon={<Plus className="w-4 h-4" />}
-              disabled={!newCustomAsset.trim()}
-            >
-              เพิ่ม
-            </Button>
           </div>
         </div>
 
