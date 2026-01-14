@@ -8,6 +8,7 @@ import { useTeams } from '../../hooks/useTeams';
 import { useCompetencies } from '../../hooks/useCompetencies';
 import { useJobBands } from '../../hooks/useJobBands';
 import { useJobGrades } from '../../hooks/useJobGrades';
+import { useCompanyAssets } from '../../hooks/useCompanyAssets';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
@@ -59,6 +60,7 @@ export const EditJDPage = () => {
   const { competencies } = useCompetencies();
   const { jobBands } = useJobBands();
   const { jobGrades } = useJobGrades();
+  const { assets } = useCompanyAssets();
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -76,6 +78,11 @@ export const EditJDPage = () => {
 
   // Job Purpose
   const [jobPurpose, setJobPurpose] = useState('');
+
+  // Company Assets
+  const [selectedAssets, setSelectedAssets] = useState<string[]>([]);
+  const [customAssets, setCustomAssets] = useState<string[]>([]); // Custom assets added by user
+  const [newCustomAsset, setNewCustomAsset] = useState(''); // Input for new custom asset
 
   // Responsibilities by category
   const [strategicResponsibilities, setStrategicResponsibilities] = useState<ResponsibilityItem[]>([]);
@@ -153,6 +160,24 @@ export const EditJDPage = () => {
       setJobPurpose(data.job_purpose || '');
       setStatus((data.status === 'draft' || data.status === 'published' ? data.status : 'draft') || 'draft');
       
+      // Load company assets
+      if (data.company_assets && data.company_assets.length > 0) {
+        const predefinedAssetIds = assets.map(a => a.id);
+        const predefined: string[] = [];
+        const custom: string[] = [];
+        
+        data.company_assets.forEach((assetId: string) => {
+          if (predefinedAssetIds.includes(assetId)) {
+            predefined.push(assetId);
+          } else {
+            custom.push(assetId);
+          }
+        });
+        
+        setSelectedAssets(predefined);
+        setCustomAssets(custom);
+      }
+      
       console.log('Set basic info - Position:', data.position, 'Job Band:', data.job_band);
       
       // Populate responsibilities by category
@@ -222,6 +247,21 @@ export const EditJDPage = () => {
     return jobGrades
       .filter(g => g.job_band_id === selectedBand.id)
       .map(g => g.name as JobGrade);
+  };
+
+  // Custom asset handlers
+  const handleAddCustomAsset = () => {
+    const trimmedAsset = newCustomAsset.trim();
+    if (trimmedAsset && !customAssets.includes(trimmedAsset)) {
+      setCustomAssets([...customAssets, trimmedAsset]);
+      setNewCustomAsset('');
+      toast.success(`เพิ่มทรัพย์สิน "${trimmedAsset}" แล้ว`);
+    }
+  };
+
+  const handleRemoveCustomAsset = (index: number) => {
+    const newCustomAssets = customAssets.filter((_, i) => i !== index);
+    setCustomAssets(newCustomAssets);
   };
   // Responsibility handlers
   const addResponsibility = (category: string) => {
@@ -454,6 +494,9 @@ export const EditJDPage = () => {
         ...internalRisks.filter(r => r.description.trim()).map(r => ({ type: r.type, description: r.description })),
       ];
 
+      // Combine selected predefined assets and custom assets
+      const allAssets = [...selectedAssets, ...customAssets];
+
       const jdData = {
         position,
         job_band: jobBand as JobBand,
@@ -463,6 +506,7 @@ export const EditJDPage = () => {
         team_id: teamId,
         direct_supervisor: directSupervisor,
         job_purpose: jobPurpose,
+        company_assets: allAssets.length > 0 ? allAssets : undefined,
         status,
         updated_by: user?.id || '550e8400-e29b-41d4-a716-446655440000',
         responsibilities: allResponsibilities,
@@ -826,6 +870,95 @@ export const EditJDPage = () => {
               </option>
             ))}
           </Select>
+        </div>
+
+        {/* Company Assets */}
+        <div>
+          <label className="block text-sm font-medium text-gray-900 mb-1">
+            Company Assets (ทรัพย์สินบริษัท)
+          </label>
+          <p className="text-sm text-gray-600 mb-3">
+            เลือกทรัพย์สินบริษัทที่จะมอบให้กับตำแหน่งนี้ (สามารถเลือกได้หลายรายการ)
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {assets.map((asset) => (
+              <label
+                key={asset.id}
+                className={`flex items-center p-3 border-2 rounded-lg cursor-pointer transition-all ${
+                  selectedAssets.includes(asset.id)
+                    ? 'border-accent-500 bg-accent-50'
+                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedAssets.includes(asset.id)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedAssets([...selectedAssets, asset.id]);
+                    } else {
+                      setSelectedAssets(selectedAssets.filter(id => id !== asset.id));
+                    }
+                  }}
+                  className="h-4 w-4 text-accent-600 focus:ring-accent-500 border-gray-300 rounded"
+                />
+                <span className="ml-2 text-sm font-medium text-gray-900">{asset.name}</span>
+              </label>
+            ))}
+            {customAssets.map((customAsset, index) => (
+              <label
+                key={`custom_${index}`}
+                className="flex items-center p-3 border-2 border-accent-500 bg-accent-50 rounded-lg"
+              >
+                <input
+                  type="checkbox"
+                  checked={true}
+                  disabled
+                  className="h-4 w-4 text-accent-600 border-gray-300 rounded"
+                />
+                <span className="ml-2 text-sm font-medium text-gray-900 flex-1">{customAsset}</span>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveCustomAsset(index)}
+                  className="ml-2 text-red-500 hover:text-red-700"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              </label>
+            ))}
+            {assets.length === 0 && customAssets.length === 0 && (
+              <div className="col-span-full">
+                <p className="text-sm text-gray-500 italic">
+                  ยังไม่มีทรัพย์สินบริษัท กรุณาเพิ่มใน Settings → Company Assets
+                </p>
+              </div>
+            )}
+          </div>
+          
+          {/* Custom Asset Input */}
+          <div className="mt-4 flex gap-2">
+            <Input
+              value={newCustomAsset}
+              onChange={(e) => setNewCustomAsset(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleAddCustomAsset();
+                }
+              }}
+              placeholder="เพิ่มทรัพย์สินอื่นๆ..."
+              className="flex-1"
+            />
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleAddCustomAsset}
+              icon={<Plus className="w-4 h-4" />}
+              disabled={!newCustomAsset.trim()}
+            >
+              เพิ่ม
+            </Button>
+          </div>
         </div>
 
         {/* Job Purpose */}

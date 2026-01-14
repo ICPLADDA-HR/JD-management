@@ -39,6 +39,7 @@ import {
   Compass,
   Globe,
   Home,
+  Package,
 } from 'lucide-react';
 import type { JobDescriptionAPI } from '../../types';
 
@@ -563,6 +564,26 @@ export const ViewJDPage = () => {
               </div>
             </div>
           </div>
+
+          {/* Company Assets */}
+          {jd.company_assets && jd.company_assets.length > 0 && (
+            <div className="print-section">
+              <h3 className="text-lg font-semibold text-primary-600 mb-3 flex items-center gap-2">
+                <Package className="w-5 h-5" />
+                Company Assets (ทรัพย์สินบริษัท)
+              </h3>
+              <div className="bg-primary-50/50 rounded-lg p-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                  {jd.company_assets.map((assetId: string, index: number) => (
+                    <div key={index} className="flex items-center p-2 bg-white rounded border border-primary-200">
+                      <span className="text-primary-400 mr-2">✓</span>
+                      <span className="text-sm text-primary-700">{assetId}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Job Purpose */}
           <div className="print-section">

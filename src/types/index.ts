@@ -222,6 +222,7 @@ export interface JobDescriptionAPI {
   team_id: string;
   direct_supervisor?: string;
   job_purpose: string;
+  company_assets?: string[]; // Array of asset IDs
   status: JDStatus;
   created_by: string;
   updated_by?: string;
@@ -267,6 +268,7 @@ export interface CreateJobDescriptionData {
   team_id: string;
   direct_supervisor?: string;
   job_purpose: string;
+  company_assets?: string[]; // Array of asset IDs
   status: JDStatus;
   created_by: string;
   responsibilities?: ResponsibilityItemAPI[];

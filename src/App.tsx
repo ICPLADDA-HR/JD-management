@@ -27,6 +27,7 @@ import { LocationsPage } from './pages/settings/LocationsPage';
 import { CompetenciesPage } from './pages/settings/CompetenciesPage';
 import { JobBandsPage } from './pages/settings/JobBandsPage';
 import { JobGradesPage } from './pages/settings/JobGradesPage';
+import { CompanyAssetsPage } from './pages/settings/CompanyAssetsPage';
 
 // User pages
 import { UsersPage } from './pages/users/UsersPage';
@@ -74,6 +75,7 @@ function App() {
               <Route path="competencies" element={<CompetenciesPage />} />
               <Route path="job-bands" element={<JobBandsPage />} />
               <Route path="job-grades" element={<JobGradesPage />} />
+              <Route path="company-assets" element={<CompanyAssetsPage />} />
             </Route>
 
             {/* User management routes */}
