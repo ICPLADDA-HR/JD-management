@@ -145,11 +145,9 @@ export const ViewJDPage = () => {
         .print-section h3 {
           font-size: 14pt !important;
           font-weight: 600 !important;
-          color: #1a1a1a !important;
           margin-top: 0 !important;
           margin-bottom: 12px !important;
           padding-bottom: 8px !important;
-          border-bottom: 2px solid #007AFF !important;
           letter-spacing: -0.2px !important;
           page-break-after: avoid !important;
           orphans: 3 !important;
@@ -607,7 +605,7 @@ export const ViewJDPage = () => {
         <div className="p-8 space-y-8 print-content">
           {/* Basic Information */}
           <div className="print-section">
-            <h3 className="text-lg font-semibold text-primary-600 mb-3 flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-blue-600 mb-3 flex items-center gap-2 border-b-2 border-blue-200 pb-2">
               <Info className="w-5 h-5" />
               Basic Information
             </h3>
@@ -637,15 +635,15 @@ export const ViewJDPage = () => {
           {/* Company Assets */}
           {jd.company_assets && jd.company_assets.length > 0 && (
             <div className="print-section">
-              <h3 className="text-lg font-semibold text-primary-600 mb-3 flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-purple-600 mb-3 flex items-center gap-2 border-b-2 border-purple-200 pb-2">
                 <Package className="w-5 h-5" />
                 Company Assets (ทรัพย์สินบริษัท)
               </h3>
               <div className="bg-primary-50/50 rounded-lg p-4">
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
                   {jd.company_assets.map((assetId: string, index: number) => (
-                    <div key={index} className="flex items-center p-2 bg-white rounded border border-primary-200">
-                      <span className="text-primary-400 mr-2">✓</span>
+                    <div key={index} className="flex items-center p-2 bg-white rounded border border-purple-200">
+                      <Package className="w-4 h-4 text-purple-500 mr-2" />
                       <span className="text-sm text-primary-700">{getAssetName(assetId)}</span>
                     </div>
                   ))}
@@ -656,7 +654,7 @@ export const ViewJDPage = () => {
 
           {/* Job Purpose */}
           <div className="print-section">
-            <h3 className="text-lg font-semibold text-primary-600 mb-3 flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-green-600 mb-3 flex items-center gap-2 border-b-2 border-green-200 pb-2">
               <Target className="w-5 h-5" />
               Job Purpose (วัตถุประสงค์ของงาน)
             </h3>
@@ -668,7 +666,7 @@ export const ViewJDPage = () => {
           {/* Responsibilities */}
           {jd.responsibilities && jd.responsibilities.length > 0 && (
             <div className="print-section">
-              <h3 className="text-lg font-semibold text-primary-600 mb-4 flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-orange-600 mb-4 flex items-center gap-2 border-b-2 border-orange-200 pb-2">
                 <ClipboardList className="w-5 h-5" />
                 Responsibilities (หน้าที่ความรับผิดชอบ)
               </h3>
@@ -714,7 +712,7 @@ export const ViewJDPage = () => {
           {/* Competencies */}
           {jd.competencies && jd.competencies.length > 0 && (
             <div className="print-section page-break-before">
-              <h3 className="text-lg font-semibold text-primary-600 mb-4 flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-pink-600 mb-4 flex items-center gap-2 border-b-2 border-pink-200 pb-2">
                 <Award className="w-5 h-5" />
                 Core Competencies (สมรรถนะหลัก)
               </h3>
@@ -752,7 +750,7 @@ export const ViewJDPage = () => {
           {/* Risks */}
           {jd.risks && jd.risks.length > 0 && (
             <div className="print-section">
-              <h3 className="text-lg font-semibold text-primary-600 mb-4 flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-amber-600 mb-4 flex items-center gap-2 border-b-2 border-amber-200 pb-2">
                 <AlertTriangle className="w-5 h-5" />
                 Risk Factors (ความเสี่ยง)
               </h3>
