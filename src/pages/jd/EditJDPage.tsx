@@ -638,6 +638,30 @@ export const EditJDPage = () => {
             </div>
           </div>
 
+          {/* Company Assets */}
+          {(selectedAssets.length > 0 || customAssets.length > 0) && (
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800 mb-3 border-b pb-2">Company Assets (ทรัพย์สินบริษัท)</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                {selectedAssets.map((assetId) => {
+                  const asset = assets.find(a => a.id === assetId);
+                  return asset ? (
+                    <div key={assetId} className="flex items-center p-2 bg-gray-50 rounded border border-gray-200 text-sm">
+                      <span className="text-gray-400 mr-2">✓</span>
+                      <span className="text-gray-700">{asset.name}</span>
+                    </div>
+                  ) : null;
+                })}
+                {customAssets.map((customAsset, index) => (
+                  <div key={`custom_${index}`} className="flex items-center p-2 bg-gray-50 rounded border border-gray-200 text-sm">
+                    <span className="text-gray-400 mr-2">✓</span>
+                    <span className="text-gray-700">{customAsset}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Job Purpose */}
           {jobPurpose && (
             <div>

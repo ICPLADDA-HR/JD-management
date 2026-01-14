@@ -5,6 +5,7 @@ import { useLocations } from '../../hooks/useLocations';
 import { useDepartments } from '../../hooks/useDepartments';
 import { useTeams } from '../../hooks/useTeams';
 import { useCompetencies } from '../../hooks/useCompetencies';
+import { useCompanyAssets } from '../../hooks/useCompanyAssets';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { CompetencyRadarChart } from '../../components/CompetencyRadarChart';
@@ -52,6 +53,7 @@ export const ViewJDPage = () => {
   const { departments } = useDepartments();
   const { teams } = useTeams();
   const { competencies } = useCompetencies();
+  const { assets } = useCompanyAssets();
 
   const [jd, setJd] = useState<JobDescriptionAPI | null>(null);
   const [loading, setLoading] = useState(true);
@@ -399,6 +401,16 @@ export const ViewJDPage = () => {
     return competencies.find(comp => comp.id === competencyId)?.name || 'Unknown';
   };
 
+  const getAssetName = (assetId: string) => {
+    // Check if it's a predefined asset ID
+    const asset = assets.find(a => a.id === assetId);
+    if (asset) {
+      return asset.name;
+    }
+    // Otherwise, it's a custom asset name
+    return assetId;
+  };
+
   const getCategoryIcon = (category: string) => {
     const iconMap: Record<string, React.ReactNode> = {
       'strategic': <Lightbulb className="w-4 h-4" />,
@@ -577,7 +589,7 @@ export const ViewJDPage = () => {
                   {jd.company_assets.map((assetId: string, index: number) => (
                     <div key={index} className="flex items-center p-2 bg-white rounded border border-primary-200">
                       <span className="text-primary-400 mr-2">✓</span>
-                      <span className="text-sm text-primary-700">{assetId}</span>
+                      <span className="text-sm text-primary-700">{getAssetName(assetId)}</span>
                     </div>
                   ))}
                 </div>
