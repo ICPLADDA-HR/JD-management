@@ -22,7 +22,6 @@ import {
   Download,
   Share2,
   Printer,
-  Info,
   Target,
   ClipboardList,
   Award,
@@ -569,23 +568,45 @@ export const ViewJDPage = () => {
         {/* Header */}
         <div className="bg-gradient-to-r from-accent-500 to-accent-600 px-8 py-6 text-white print-header">
           <div className="flex items-start justify-between">
-            <div>
+            <div className="flex-1">
               <h1 className="text-3xl font-bold mb-2">{jd.position}</h1>
-              <div className="flex items-center space-x-4 text-accent-100">
-                <span>{jd.job_band} • {jd.job_grade}</span>
-                <span>•</span>
-                <span className="flex items-center">
-                  <Building2 className="w-4 h-4 mr-1" />
-                  {getDepartmentName(jd.department_id)}
-                </span>
-                <span>•</span>
-                <span className="flex items-center">
-                  <MapPin className="w-4 h-4 mr-1" />
-                  {getLocationName(jd.location_id)}
-                </span>
+              <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-4 text-accent-100">
+                <div className="flex items-center space-x-4">
+                  <span>{jd.job_band} • {jd.job_grade}</span>
+                  <span>•</span>
+                  <span className="flex items-center">
+                    <Building2 className="w-4 h-4 mr-1" />
+                    {getDepartmentName(jd.department_id)}
+                  </span>
+                  <span>•</span>
+                  <span className="flex items-center">
+                    <MapPin className="w-4 h-4 mr-1" />
+                    {getLocationName(jd.location_id)}
+                  </span>
+                </div>
+                <div className="flex items-center space-x-4 text-accent-100/90 text-sm">
+                  <span className="flex items-center">
+                    <Users className="w-4 h-4 mr-1" />
+                    Team: {getTeamName(jd.team_id)}
+                  </span>
+                  {jd.direct_supervisor && (
+                    <>
+                      <span>•</span>
+                      <span className="flex items-center">
+                        <User className="w-4 h-4 mr-1" />
+                        Supervisor: {jd.direct_supervisor}
+                      </span>
+                    </>
+                  )}
+                  <span>•</span>
+                  <span className="flex items-center">
+                    <Calendar className="w-4 h-4 mr-1" />
+                    Created: {formatDate(jd.created_at)}
+                  </span>
+                </div>
               </div>
             </div>
-            <div className="text-right flex flex-col items-end gap-2 print:hidden">
+            <div className="text-right flex flex-col items-end gap-2 print:hidden ml-4">
               {getStatusBadge(jd.status)}
               <div className="text-accent-100 text-sm">
                 Updated {formatDate(jd.updated_at)}
@@ -603,35 +624,6 @@ export const ViewJDPage = () => {
         </div>
 
         <div className="p-8 space-y-8 print-content">
-          {/* Basic Information */}
-          <div className="print-section">
-            <h3 className="text-lg font-semibold text-blue-600 mb-3 flex items-center gap-2 border-b-2 border-blue-200 pb-2">
-              <Info className="w-5 h-5" />
-              Basic Information
-            </h3>
-            <div className="bg-primary-50/50 rounded-lg p-4">
-              <div className="flex flex-col md:flex-row md:items-center md:gap-6 space-y-2 md:space-y-0">
-                <div className="flex items-center">
-                  <Users className="w-4 h-4 text-primary-400 mr-2" />
-                  <span className="text-sm text-primary-500">Team:</span>
-                  <span className="ml-2 text-sm font-medium">{getTeamName(jd.team_id)}</span>
-                </div>
-                {jd.direct_supervisor && (
-                  <div className="flex items-center">
-                    <User className="w-4 h-4 text-primary-400 mr-2" />
-                    <span className="text-sm text-primary-500">Direct Supervisor:</span>
-                    <span className="ml-2 text-sm font-medium">{jd.direct_supervisor}</span>
-                  </div>
-                )}
-                <div className="flex items-center">
-                  <Calendar className="w-4 h-4 text-primary-400 mr-2" />
-                  <span className="text-sm text-primary-500">Created:</span>
-                  <span className="ml-2 text-sm font-medium">{formatDate(jd.created_at)}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Company Assets */}
           {jd.company_assets && jd.company_assets.length > 0 && (
             <div className="print-section">
