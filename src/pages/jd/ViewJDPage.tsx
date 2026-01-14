@@ -566,54 +566,73 @@ export const ViewJDPage = () => {
       {/* Job Description Content */}
       <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-primary-100 overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-accent-500 to-accent-600 px-8 py-6 text-white print-header">
-          <div className="flex items-start justify-between">
+        <div className="bg-gradient-to-r from-accent-500 to-accent-600 px-8 py-8 text-white print-header">
+          <div className="flex items-start justify-between gap-8">
+            {/* Left Section */}
             <div className="flex-1">
-              <h1 className="text-3xl font-bold mb-2">{jd.position}</h1>
-              <div className="flex items-center space-x-3 text-accent-100 text-sm">
-                <span>{jd.job_band} • {jd.job_grade}</span>
-                <span>•</span>
-                <span className="flex items-center">
-                  <Building2 className="w-3.5 h-3.5 mr-1" />
+              <h1 className="text-4xl font-bold mb-4">{jd.position}</h1>
+              <div className="flex flex-wrap items-center gap-4 text-accent-50 text-base">
+                <span className="font-medium">{jd.job_band} • {jd.job_grade}</span>
+                <span className="text-accent-200">|</span>
+                <span className="flex items-center gap-2">
+                  <Building2 className="w-5 h-5" />
                   {getDepartmentName(jd.department_id)}
                 </span>
-                <span>•</span>
-                <span className="flex items-center">
-                  <MapPin className="w-3.5 h-3.5 mr-1" />
+                <span className="text-accent-200">|</span>
+                <span className="flex items-center gap-2">
+                  <MapPin className="w-5 h-5" />
                   {getLocationName(jd.location_id)}
                 </span>
               </div>
             </div>
-            <div className="text-right flex flex-col items-end gap-2">
+
+            {/* Right Section */}
+            <div className="flex flex-col items-end gap-3 min-w-[280px]">
+              {/* Action Buttons */}
               <div className="flex items-center gap-2 print:hidden">
                 {getStatusBadge(jd.status)}
                 {canEdit && (
                   <Link to={`/jd/${jd.id}/edit`}>
-                    <button className="flex items-center gap-1 px-3 py-1.5 text-sm text-white/90 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
-                      <Edit2 className="w-3.5 h-3.5" />
+                    <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-white/20 hover:bg-white/30 rounded-lg transition-all">
+                      <Edit2 className="w-4 h-4" />
                       Edit
                     </button>
                   </Link>
                 )}
               </div>
-              <div className="flex flex-col items-end space-y-1 text-accent-100/90 text-sm">
-                <span className="flex items-center">
-                  <Users className="w-3.5 h-3.5 mr-1" />
-                  Team: {getTeamName(jd.team_id)}
-                </span>
+
+              {/* Info Cards */}
+              <div className="flex flex-col gap-2 w-full">
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2.5">
+                  <div className="flex items-center gap-2 text-accent-50">
+                    <Users className="w-4 h-4 flex-shrink-0" />
+                    <span className="text-sm font-medium">Team:</span>
+                    <span className="text-sm">{getTeamName(jd.team_id)}</span>
+                  </div>
+                </div>
+                
                 {jd.direct_supervisor && (
-                  <span className="flex items-center">
-                    <User className="w-3.5 h-3.5 mr-1" />
-                    Supervisor: {jd.direct_supervisor}
-                  </span>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2.5">
+                    <div className="flex items-center gap-2 text-accent-50">
+                      <User className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm font-medium">Supervisor:</span>
+                      <span className="text-sm">{jd.direct_supervisor}</span>
+                    </div>
+                  </div>
                 )}
-                <span className="flex items-center">
-                  <Calendar className="w-3.5 h-3.5 mr-1" />
-                  Published: {formatDate(jd.created_at)}
-                </span>
+                
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2.5">
+                  <div className="flex items-center gap-2 text-accent-50">
+                    <Calendar className="w-4 h-4 flex-shrink-0" />
+                    <span className="text-sm font-medium">Published:</span>
+                    <span className="text-sm">{formatDate(jd.created_at)}</span>
+                  </div>
+                </div>
               </div>
-              <div className="text-accent-100 text-xs mt-1">
-                Updated {formatDate(jd.updated_at)}
+
+              {/* Updated Info */}
+              <div className="text-accent-100 text-xs italic">
+                Last updated {formatDate(jd.updated_at)}
               </div>
             </div>
           </div>
