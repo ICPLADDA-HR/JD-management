@@ -639,10 +639,8 @@ export const EditJDPage = () => {
         })),
       };
 
-      // Include company_assets if there are any selected
-      if (allAssets.length > 0) {
-        jdData.company_assets = allAssets;
-      }
+      // Include company_assets - send empty array if none selected to clear existing data
+      jdData.company_assets = allAssets.length > 0 ? allAssets : [];
 
       await updateJobDescription(id, jdData);
       navigate(`/jd/${id}`);
