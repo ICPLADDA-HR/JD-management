@@ -612,8 +612,14 @@ export const EditJDPage = () => {
         ...internalRisks.filter(r => r.description.trim()).map(r => ({ type: r.type, description: r.description })),
       ];
 
-      // Combine selected predefined assets and custom assets
-      const allAssets = [...selectedAssets, ...customAssets];
+      // Combine selected predefined assets and custom assets (save asset names instead of IDs)
+      const allAssets = [
+        ...selectedAssets.map(assetId => {
+          const asset = assets.find(a => a.id === assetId);
+          return asset ? asset.name : assetId;
+        }),
+        ...customAssets
+      ];
 
       const jdData: any = {
         position,

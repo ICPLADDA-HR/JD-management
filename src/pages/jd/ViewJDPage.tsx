@@ -529,14 +529,19 @@ export const ViewJDPage = () => {
   };
 
 
-  const getAssetName = (assetId: string) => {
-    // Check if it's a predefined asset ID
-    const asset = assets.find(a => a.id === assetId);
-    if (asset) {
-      return asset.name;
+  const getAssetName = (assetValue: string) => {
+    // First check by ID
+    const assetById = assets.find(a => a.id === assetValue);
+    if (assetById) {
+      return assetById.name;
     }
-    // Otherwise, it's a custom asset name
-    return assetId;
+    // Then check by name (in case the stored value is the name itself)
+    const assetByName = assets.find(a => a.name === assetValue);
+    if (assetByName) {
+      return assetByName.name;
+    }
+    // Return the value as-is (it might be a custom asset name)
+    return assetValue;
   };
 
   const getAssetIcon = (assetName: string) => {

@@ -1,105 +1,125 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
+import toast from 'react-hot-toast';
 
 export interface CompanyAsset {
   id: string;
   name: string;
   description?: string;
-  createdAt: string;
+  created_at?: string;
+  updated_at?: string;
 }
-
-const STORAGE_KEY = 'jd_company_assets';
-
-const defaultAssets: CompanyAsset[] = [
-  {
-    id: '1',
-    name: 'Laptop',
-    description: 'Company-issued laptop computer',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    name: 'Mobile Phone',
-    description: 'Company mobile phone',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: '3',
-    name: 'Access Card',
-    description: 'Building access card',
-    createdAt: new Date().toISOString(),
-  },
-];
 
 export const useCompanyAssets = () => {
   const [assets, setAssets] = useState<CompanyAsset[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Load from localStorage
+  // Load from Supabase
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        const loadedAssets = JSON.parse(stored);
-        // Remove duplicates based on name (case-insensitive)
-        const uniqueAssets = loadedAssets.reduce((acc: CompanyAsset[], current: CompanyAsset) => {
-          const exists = acc.find(item => item.name.toLowerCase() === current.name.toLowerCase());
-          if (!exists) {
-            acc.push(current);
-          }
-          return acc;
-        }, []);
-        setAssets(uniqueAssets);
-      } catch (error) {
-        console.error('Error loading company assets:', error);
-        setAssets(defaultAssets);
-      }
-    } else {
-      setAssets(defaultAssets);
-    }
-    setLoading(false);
+    loadAssets();
   }, []);
 
-  // Save to localStorage whenever assets change
-  useEffect(() => {
-    if (!loading) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(assets));
-    }
-  }, [assets, loading]);
+  const loadAssets = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('company_assets')
+        .select('*')
+        .order('name');
 
-  const addAsset = (name: string, description?: string) => {
-    // Check if asset with same name already exists
-    const exists = assets.some(asset => asset.name.toLowerCase() === name.toLowerCase());
-    if (exists) {
-      throw new Error('ทรัพย์สินนี้มีอยู่แล้ว');
+      if (error) throw error;
+      setAssets(data || []);
+    } catch (error) {
+      console.error('Error loading company assets:', error);
+      toast.error('ไม่สามารถโหลดข้อมูลทรัพย์สินได้');
+    } finally {
+      setLoading(false);
     }
-    
-    const newAsset: CompanyAsset = {
-      id: Date.now().toString(),
-      name,
-      description,
-      createdAt: new Date().toISOString(),
-    };
-    setAssets(prev => [...prev, newAsset]);
   };
 
-  const updateAsset = (id: string, name: string, description?: string) => {
-    // Check if another asset with same name exists (excluding current asset)
-    const exists = assets.some(asset => 
-      asset.id !== id && asset.name.toLowerCase() === name.toLowerCase()
-    );
-    if (exists) {
-      throw new Error('ทรัพย์สินนี้มีอยู่แล้ว');
+  const addAsset = async (name: string, description?: string) => {
+    try {
+      // Check if asset with same name already exists
+      const exists = assets.some(asset => asset.name.toLowerCase() === name.toLowerCase());
+      if (exists) {
+        throw new Error('ทรัพย์สินนี้มีอยู่แล้ว');
+      }
+
+      const { data, error } = await supabase
+        .from('company_assets')
+        .insert([{ name, description }])
+        .select()
+        .single();
+
+      if (error) {
+        if (error.code === '23505') {
+          throw new Error('ทรัพย์สินนี้มีอยู่แล้ว');
+        }
+        throw error;
+      }
+
+      setAssets(prev => [...prev, data].sort((a, b) => a.name.localeCompare(b.name)));
+      toast.success('เพิ่มทรัพย์สินสำเร็จ');
+      return data;
+    } catch (error: any) {
+      console.error('Error adding asset:', error);
+      toast.error(error.message || 'ไม่สามารถเพิ่มทรัพย์สินได้');
+      throw error;
     }
-    
-    setAssets(prev =>
-      prev.map(asset =>
-        asset.id === id ? { ...asset, name, description } : asset
-      )
-    );
   };
 
-  const deleteAsset = (id: string) => {
-    setAssets(prev => prev.filter(asset => asset.id !== id));
+  const updateAsset = async (id: string, name: string, description?: string) => {
+    try {
+      // Check if another asset with same name exists (excluding current asset)
+      const exists = assets.some(asset => 
+        asset.id !== id && asset.name.toLowerCase() === name.toLowerCase()
+      );
+      if (exists) {
+        throw new Error('ทรัพย์สินนี้มีอยู่แล้ว');
+      }
+
+      const { data, error } = await supabase
+        .from('company_assets')
+        .update({ name, description })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        if (error.code === '23505') {
+          throw new Error('ทรัพย์สินนี้มีอยู่แล้ว');
+        }
+        throw error;
+      }
+
+      setAssets(prev =>
+        prev.map(asset => asset.id === id ? data : asset).sort((a, b) => a.name.localeCompare(b.name))
+      );
+      toast.success('อัปเดตทรัพย์สินสำเร็จ');
+      return data;
+    } catch (error: any) {
+      console.error('Error updating asset:', error);
+      toast.error(error.message || 'ไม่สามารถอัปเดตทรัพย์สินได้');
+      throw error;
+    }
+  };
+
+  const deleteAsset = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('company_assets')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setAssets(prev => prev.filter(asset => asset.id !== id));
+      toast.success('ลบทรัพย์สินสำเร็จ');
+    } catch (error: any) {
+      console.error('Error deleting asset:', error);
+      toast.error(error.message || 'ไม่สามารถลบทรัพย์สินได้');
+      throw error;
+    }
   };
 
   return {
@@ -108,5 +128,6 @@ export const useCompanyAssets = () => {
     addAsset,
     updateAsset,
     deleteAsset,
+    refetch: loadAssets,
   };
 };
