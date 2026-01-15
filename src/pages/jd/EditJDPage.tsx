@@ -127,6 +127,46 @@ export const EditJDPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadedJD, competencies.length]);
 
+  // Populate company assets when both JD data and assets are loaded
+  useEffect(() => {
+    if (loadedJD && loadedJD.company_assets && loadedJD.company_assets.length > 0 && assets.length > 0) {
+      console.log('=== Loading company assets ===');
+      console.log('JD company_assets:', loadedJD.company_assets);
+      console.log('Available assets:', assets);
+      
+      const predefinedAssetIds = assets.map(a => a.id);
+      const predefinedAssetNames = assets.map(a => a.name);
+      const predefined: string[] = [];
+      const custom: string[] = [];
+      
+      loadedJD.company_assets.forEach((assetValue: string) => {
+        // Check if it's a predefined asset by ID
+        if (predefinedAssetIds.includes(assetValue)) {
+          predefined.push(assetValue);
+        } 
+        // Check if it's a predefined asset by name
+        else if (predefinedAssetNames.includes(assetValue)) {
+          // Find the asset ID by name
+          const asset = assets.find(a => a.name === assetValue);
+          if (asset) {
+            predefined.push(asset.id);
+          }
+        }
+        // Otherwise it's a custom asset
+        else {
+          custom.push(assetValue);
+        }
+      });
+      
+      console.log('Predefined assets to select:', predefined);
+      console.log('Custom assets:', custom);
+      
+      setSelectedAssets(predefined);
+      setCustomAssets(custom);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadedJD, assets.length]);
+
   // Initialize competency scores when competencies are loaded (only for new JD)
   useEffect(() => {
     if (competencies.length > 0 && competencyScores.length === 0 && !loading && !loadedJD) {
@@ -236,17 +276,35 @@ export const EditJDPage = () => {
       
       // Load company assets
       if (data.company_assets && data.company_assets.length > 0) {
+        console.log('Loading company assets:', data.company_assets);
+        console.log('Available assets:', assets);
+        
         const predefinedAssetIds = assets.map(a => a.id);
+        const predefinedAssetNames = assets.map(a => a.name);
         const predefined: string[] = [];
         const custom: string[] = [];
         
-        data.company_assets.forEach((assetId: string) => {
-          if (predefinedAssetIds.includes(assetId)) {
-            predefined.push(assetId);
-          } else {
-            custom.push(assetId);
+        data.company_assets.forEach((assetValue: string) => {
+          // Check if it's a predefined asset by ID
+          if (predefinedAssetIds.includes(assetValue)) {
+            predefined.push(assetValue);
+          } 
+          // Check if it's a predefined asset by name
+          else if (predefinedAssetNames.includes(assetValue)) {
+            // Find the asset ID by name
+            const asset = assets.find(a => a.name === assetValue);
+            if (asset) {
+              predefined.push(asset.id);
+            }
+          }
+          // Otherwise it's a custom asset
+          else {
+            custom.push(assetValue);
           }
         });
+        
+        console.log('Predefined assets to select:', predefined);
+        console.log('Custom assets:', custom);
         
         setSelectedAssets(predefined);
         setCustomAssets(custom);
