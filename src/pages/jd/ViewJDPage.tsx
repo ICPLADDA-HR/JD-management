@@ -759,24 +759,7 @@ export const ViewJDPage = () => {
                 Responsibilities (หน้าที่ความรับผิดชอบ)
               </h3>
               
-              {/* Percentage Summary Bar */}
-              {jd.responsibility_percentages && Object.values(jd.responsibility_percentages).some(v => v > 0) && (
-                <div className="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold text-gray-700">สัดส่วนรวม:</span>
-                    <span className="text-lg font-bold text-green-600">
-                      {Object.values(jd.responsibility_percentages).reduce((sum: number, val) => sum + (val as number || 0), 0)}%
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3">
-                    <div 
-                      className="h-3 rounded-full bg-green-500"
-                      style={{ width: `${Math.min(Object.values(jd.responsibility_percentages).reduce((sum: number, val) => sum + (val as number || 0), 0), 100)}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-              
+
               <div className="space-y-4">
                 {Object.entries(
                   jd.responsibilities.reduce((acc, resp) => {
