@@ -14,7 +14,7 @@ import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { Textarea } from '../../components/ui/Textarea';
 import { Slider } from '../../components/ui/Slider';
-import { Plus, Trash2, Save, ArrowLeft, Printer } from 'lucide-react';
+import { Plus, Trash2, Save, ArrowLeft, Printer, Target, ClipboardList, Package } from 'lucide-react';
 import { SpiderChart } from '../../components/ui/SpiderChart';
 import type {
   JobBand,
@@ -962,9 +962,10 @@ export const EditJDPage = () => {
 
         {/* Job Purpose */}
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-1">
+          <h3 className="text-lg font-semibold text-green-600 mb-3 flex items-center gap-2 border-b-2 border-green-200 pb-2">
+            <Target className="w-5 h-5" />
             Job Purpose (วัตถุประสงค์ของงาน) *
-          </label>
+          </h3>
           <p className="text-sm font-medium text-gray-700 mb-3">
             สรุปเป้าหมายหลักของตำแหน่ง เพื่อให้งานสอดคล้องกับทิศทางและเป้าหมายขององค์กร
           </p>
@@ -978,9 +979,10 @@ export const EditJDPage = () => {
         </div>
         {/* Responsibilities Section */}
         <div className="border-t border-primary-200 pt-6">
-          <h2 className="text-2xl font-bold text-primary-600 mb-6">
+          <h3 className="text-lg font-semibold text-orange-600 mb-6 flex items-center gap-2 border-b-2 border-orange-200 pb-2">
+            <ClipboardList className="w-5 h-5" />
             Responsibilities (หน้าที่ความรับผิดชอบ)
-          </h2>
+          </h3>
 
           {/* Strategic */}
           <div className="space-y-6 pt-6">
@@ -1390,9 +1392,10 @@ export const EditJDPage = () => {
 
         {/* Company Assets */}
         <div className="border-t border-primary-200 pt-6">
-          <label className="block text-base font-semibold text-primary-600 mb-1">
+          <h3 className="text-lg font-semibold text-purple-600 mb-3 flex items-center gap-2 border-b-2 border-purple-200 pb-2">
+            <Package className="w-5 h-5" />
             Company Assets (ทรัพย์สินบริษัท)
-          </label>
+          </h3>
           <p className="text-sm text-primary-500 mb-3">
             เลือกทรัพย์สินบริษัทที่จะมอบให้กับตำแหน่งนี้ (สามารถเลือกได้หลายรายการ)
           </p>
