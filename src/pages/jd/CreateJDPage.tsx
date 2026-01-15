@@ -14,7 +14,7 @@ import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { Textarea } from '../../components/ui/Textarea';
 import { Slider } from '../../components/ui/Slider';
-import { Plus, Trash2, Save, ArrowLeft, Target, ClipboardList, Package } from 'lucide-react';
+import { Plus, Trash2, Save, ArrowLeft, Target, ClipboardList, Package, Award, AlertTriangle, Globe, Home } from 'lucide-react';
 import type {
   JobBand,
   JobGrade,
@@ -762,9 +762,10 @@ export const CreateJDPage = () => {
         </div>
         {/* Core Competencies */}
         <div className="border-t border-primary-200 pt-6">
-          <label className="block text-heading-3 font-bold text-primary-600 mb-2">
+          <h3 className="text-lg font-semibold text-pink-600 mb-4 flex items-center gap-2 border-b-2 border-pink-200 pb-2">
+            <Award className="w-5 h-5" />
             Core Competencies (สมรรถนะหลัก)
-          </label>
+          </h3>
           <p className="mb-6 text-body text-primary-500">
             ทักษะและคุณลักษณะสำคัญที่พนักงานทุกคนควรมี เพื่อทำงานได้อย่างมีประสิทธิภาพและสอดคล้องกับค่านิยมองค์กร
           </p>
@@ -815,18 +816,22 @@ export const CreateJDPage = () => {
 
         {/* Risk Section */}
         <div className="border-t border-primary-200 pt-6">
-          <div className="mb-4">
-            <label className="block text-base font-semibold text-primary-600">Risk (ความเสี่ยง)</label>
-            <p className="mt-1 text-sm text-primary-500">
-              ประเด็นหรือปัจจัยที่อาจส่งผลกระทบต่อการดำเนินงาน การบรรลุเป้าหมาย หรือประสิทธิภาพของตำแหน่ง/ทีม
-            </p>
-          </div>
+          <h3 className="text-lg font-semibold text-amber-600 mb-4 flex items-center gap-2 border-b-2 border-amber-200 pb-2">
+            <AlertTriangle className="w-5 h-5" />
+            Risk Factors (ความเสี่ยง)
+          </h3>
+          <p className="text-sm text-primary-500 mb-4">
+            ประเด็นหรือปัจจัยที่อาจส่งผลกระทบต่อการดำเนินงาน การบรรลุเป้าหมาย หรือประสิทธิภาพของตำแหน่ง/ทีม
+          </p>
 
           {/* External Risks */}
           <div className="mb-6">
             <div className="mb-3 flex items-center justify-between">
               <div>
-                <label className="text-base font-semibold text-primary-600">External Risks (ความเสี่ยงภายนอก)</label>
+                <h4 className="font-semibold text-red-600 flex items-center gap-2">
+                  <Globe className="w-4 h-4" />
+                  External Risks (ความเสี่ยงภายนอก)
+                </h4>
                 <p className="mt-1 text-sm text-primary-500">
                   ความเสี่ยงที่เกิดจากปัจจัยภายนอกองค์กร ซึ่งอยู่นอกเหนือการควบคุมโดยตรง เช่น เศรษฐกิจ การเมือง คู่ค้า หรือเทคโนโลยี
                 </p>
@@ -866,7 +871,10 @@ export const CreateJDPage = () => {
           <div>
             <div className="mb-3 flex items-center justify-between">
               <div>
-                <label className="text-base font-semibold text-accent-600">Internal Risks (ความเสี่ยงภายใน)</label>
+                <h4 className="font-semibold text-blue-600 flex items-center gap-2">
+                  <Home className="w-4 h-4" />
+                  Internal Risks (ความเสี่ยงภายใน)
+                </h4>
                 <p className="mt-1 text-sm text-primary-500">
                   ความเสี่ยงที่เกิดจากปัจจัยภายในองค์กร ซึ่งสามารถควบคุมหรือบริหารจัดการได้ เช่น บุคลากร ระบบการทำงาน หรือขั้นตอนภายใน
                 </p>
