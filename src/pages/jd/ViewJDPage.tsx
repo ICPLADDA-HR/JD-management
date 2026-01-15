@@ -469,16 +469,20 @@ export const ViewJDPage = () => {
   };
 
   const getAssetIcon = (assetName: string) => {
+    console.log('Asset name:', assetName); // Debug log
     const iconMap: Record<string, React.ReactNode> = {
+      // English names
       'Laptop': <Laptop className="w-4 h-4" />,
-      'คอมพิวเตอร์โน้ตบุ๊ค': <Laptop className="w-4 h-4" />,
       'Mobile Phone': <Smartphone className="w-4 h-4" />,
-      'เครื่องโทรศัพท์': <Smartphone className="w-4 h-4" />,
       'Access Card': <CreditCard className="w-4 h-4" />,
+      'Fleet Card': <Ticket className="w-4 h-4" />,
+      // Thai names
+      'คอมพิวเตอร์โน้ตบุ๊ค': <Laptop className="w-4 h-4" />,
+      'เครื่องโทรศัพท์': <Smartphone className="w-4 h-4" />,
+      'เมอร์โทรศัพท์': <Smartphone className="w-4 h-4" />,
       'บัตรประจำตัว': <CreditCard className="w-4 h-4" />,
       'สำเภาโทรศัพท์': <Smartphone className="w-4 h-4" />,
       'รถยนต์': <Car className="w-4 h-4" />,
-      'Fleet Card': <Ticket className="w-4 h-4" />,
       'บัตรรองรถ': <Ticket className="w-4 h-4" />,
       'บัตร Easy Pass': <Ticket className="w-4 h-4" />,
       'เครื่อง Ipad': <Laptop className="w-4 h-4" />,
