@@ -452,9 +452,6 @@ export const ViewJDPage = () => {
     return teams.find(team => team.id === teamId)?.name || 'Unknown';
   };
 
-  const getCompetencyName = (competencyId: string) => {
-    return competencies.find(comp => comp.id === competencyId)?.name || 'Unknown';
-  };
 
   const getAssetName = (assetId: string) => {
     // Check if it's a predefined asset ID
@@ -703,53 +700,57 @@ export const ViewJDPage = () => {
           )}
 
           {/* Competencies */}
-          {jd.competencies && jd.competencies.length > 0 && (
-            <div className="print-section page-break-before">
-              <h3 className="text-lg font-semibold text-pink-600 mb-4 flex items-center gap-2 border-b-2 border-pink-200 pb-2">
-                <Award className="w-5 h-5" />
-                Core Competencies (สมรรถนะหลัก)
-              </h3>
-              
-              {/* Spider Chart */}
+          <div className="print-section page-break-before">
+            <h3 className="text-lg font-semibold text-pink-600 mb-4 flex items-center gap-2 border-b-2 border-pink-200 pb-2">
+              <Award className="w-5 h-5" />
+              Core Competencies (สมรรถนะหลัก)
+            </h3>
+            
+            {/* Spider Chart */}
+            {jd.competencies && jd.competencies.length > 0 && (
               <div className="bg-white rounded-lg p-6 mb-6 border border-primary-100 competency-chart-container">
                 <CompetencyRadarChart competencies={jd.competencies} />
               </div>
+            )}
 
-              {/* Competency Details */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {jd.competencies.map((comp, index) => {
-                  const compName = getCompetencyName(comp.competency_id);
-                  
-                  // Assign colors to each competency
-                  const competencyColors: Record<string, string> = {
-                    'Execution': 'text-blue-600',
-                    'Communication': 'text-purple-600',
-                    'Self Awareness': 'text-teal-600',
-                    'Leadership': 'text-orange-600',
-                    'Business Mind': 'text-indigo-600',
-                    'Long-term Thinking': 'text-pink-600',
-                  };
-                  
-                  return (
-                    <div key={index} className="bg-primary-50/50 rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className={`font-medium flex items-center gap-2 ${competencyColors[compName] || 'text-primary-600'}`}>
-                          {getCompetencyIcon(compName)}
-                          {compName}
-                        </h4>
-                        <span className={`font-bold ${getScoreColor(comp.score)}`}>
-                          {comp.score}/5
-                        </span>
-                      </div>
-                      {comp.notes && (
-                        <p className="text-sm text-primary-500">{comp.notes}</p>
-                      )}
+            {/* Competency Details - Show all 6 competencies */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {competencies.map((competency) => {
+                // Find the score for this competency
+                const compData = jd.competencies?.find(c => c.competency_id === competency.id);
+                const score = compData?.score || 0;
+                const notes = compData?.notes || '';
+                const compName = competency.name;
+                
+                // Assign colors to each competency
+                const competencyColors: Record<string, string> = {
+                  'Execution': 'text-blue-600',
+                  'Communication': 'text-purple-600',
+                  'Self Awareness': 'text-teal-600',
+                  'Leadership': 'text-orange-600',
+                  'Business Mind': 'text-indigo-600',
+                  'Long-term Thinking': 'text-pink-600',
+                };
+                
+                return (
+                  <div key={competency.id} className="bg-primary-50/50 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className={`font-medium flex items-center gap-2 ${competencyColors[compName] || 'text-primary-600'}`}>
+                        {getCompetencyIcon(compName)}
+                        {compName}
+                      </h4>
+                      <span className={`font-bold ${getScoreColor(score)}`}>
+                        {score}/5
+                      </span>
                     </div>
-                  );
-                })}
-              </div>
+                    {notes && (
+                      <p className="text-sm text-primary-500">{notes}</p>
+                    )}
+                  </div>
+                );
+              })}
             </div>
-          )}
+          </div>
 
           {/* Risks */}
           {jd.risks && jd.risks.length > 0 && (
