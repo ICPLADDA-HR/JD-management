@@ -82,6 +82,23 @@ export const CreateJDPage = () => {
   const [efficiencyResponsibilities, setEfficiencyResponsibilities] = useState<ResponsibilityItem[]>([]);
   const [otherResponsibilities, setOtherResponsibilities] = useState<ResponsibilityItem[]>([]);
 
+  // Responsibility percentages (must sum to 100)
+  const [responsibilityPercentages, setResponsibilityPercentages] = useState({
+    strategic: 0,
+    team_management: 0,
+    general: 0,
+    culture: 0,
+    efficiency: 0,
+    other: 0,
+  });
+
+  const totalPercentage = Object.values(responsibilityPercentages).reduce((sum, val) => sum + val, 0);
+
+  const updatePercentage = (category: keyof typeof responsibilityPercentages, value: number) => {
+    const numValue = Math.max(0, Math.min(100, value || 0));
+    setResponsibilityPercentages(prev => ({ ...prev, [category]: numValue }));
+  };
+
   // Risks
   const [externalRisks, setExternalRisks] = useState<Risk[]>([{ type: 'external', description: '' }]);
   const [internalRisks, setInternalRisks] = useState<Risk[]>([{ type: 'internal', description: '' }]);
@@ -508,16 +525,45 @@ export const CreateJDPage = () => {
 
         {/* Responsibilities Section */}
         <div className="border-t border-primary-200 pt-6">
-          <h3 className="text-lg font-semibold text-orange-600 mb-6 flex items-center gap-2 border-b-2 border-orange-200 pb-2">
+          <h3 className="text-lg font-semibold text-orange-600 mb-4 flex items-center gap-2 border-b-2 border-orange-200 pb-2">
             <ClipboardList className="w-5 h-5" />
             Responsibilities (หน้าที่ความรับผิดชอบ)
           </h3>
+          
+          {/* Percentage Summary */}
+          <div className={`mb-6 p-4 rounded-lg ${totalPercentage === 100 ? 'bg-green-50 border border-green-200' : 'bg-yellow-50 border border-yellow-200'}`}>
+            <div className="flex items-center justify-between">
+              <span className="font-medium text-primary-700">สัดส่วนรวม:</span>
+              <span className={`text-lg font-bold ${totalPercentage === 100 ? 'text-green-600' : 'text-yellow-600'}`}>
+                {totalPercentage}% / 100%
+              </span>
+            </div>
+            {totalPercentage !== 100 && (
+              <p className="text-sm text-yellow-600 mt-1">
+                {totalPercentage < 100 ? `ยังขาดอีก ${100 - totalPercentage}%` : `เกินมา ${totalPercentage - 100}%`}
+              </p>
+            )}
+          </div>
 
           {/* Strategic */}
           <div className="space-y-6 pt-6">
             <div>
               <div className="mb-3 flex items-center justify-between">
-                <label className="text-base font-semibold text-indigo-600">Strategic (เชิงกลยุทธ์)</label>
+                <div className="flex items-center gap-3">
+                  <label className="text-base font-semibold text-indigo-600">Strategic (เชิงกลยุทธ์)</label>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={responsibilityPercentages.strategic || ''}
+                      onChange={(e) => updatePercentage('strategic', parseInt(e.target.value))}
+                      className="w-16 px-2 py-1 text-center border border-indigo-300 rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="0"
+                    />
+                    <span className="text-sm text-primary-500">%</span>
+                  </div>
+                </div>
                 <Button
                   variant="secondary"
                   size="sm"
@@ -556,9 +602,23 @@ export const CreateJDPage = () => {
           <div className="space-y-6 border-t border-primary-200 pt-6">
             <div>
               <div className="mb-3 flex items-center justify-between">
-                <label className="text-base font-semibold text-cyan-600">
-                  Team Management & Development (การบริหารทีม และการพัฒนาบุคลากร)
-                </label>
+                <div className="flex items-center gap-3">
+                  <label className="text-base font-semibold text-cyan-600">
+                    Team Management & Development (การบริหารทีม และการพัฒนาบุคลากร)
+                  </label>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={responsibilityPercentages.team_management || ''}
+                      onChange={(e) => updatePercentage('team_management', parseInt(e.target.value))}
+                      className="w-16 px-2 py-1 text-center border border-cyan-300 rounded-md text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                      placeholder="0"
+                    />
+                    <span className="text-sm text-primary-500">%</span>
+                  </div>
+                </div>
                 <Button
                   variant="secondary"
                   size="sm"
@@ -598,7 +658,21 @@ export const CreateJDPage = () => {
           <div className="space-y-6 border-t border-primary-200 pt-6">
             <div>
               <div className="mb-3 flex items-center justify-between">
-                <label className="text-base font-semibold text-amber-600">General Tasks (งานทั่วไป)</label>
+                <div className="flex items-center gap-3">
+                  <label className="text-base font-semibold text-amber-600">General Tasks (งานทั่วไป)</label>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={responsibilityPercentages.general || ''}
+                      onChange={(e) => updatePercentage('general', parseInt(e.target.value))}
+                      className="w-16 px-2 py-1 text-center border border-amber-300 rounded-md text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                      placeholder="0"
+                    />
+                    <span className="text-sm text-primary-500">%</span>
+                  </div>
+                </div>
                 <Button
                   variant="secondary"
                   size="sm"
@@ -638,9 +712,23 @@ export const CreateJDPage = () => {
           <div className="space-y-6 border-t border-primary-200 pt-6">
             <div>
               <div className="mb-3 flex items-center justify-between">
-                <label className="text-base font-semibold text-rose-600">
-                  Culture Building (การสร้างและส่งเสริมวัฒนธรรมองค์กร)
-                </label>
+                <div className="flex items-center gap-3">
+                  <label className="text-base font-semibold text-rose-600">
+                    Culture Building (การสร้างและส่งเสริมวัฒนธรรมองค์กร)
+                  </label>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={responsibilityPercentages.culture || ''}
+                      onChange={(e) => updatePercentage('culture', parseInt(e.target.value))}
+                      className="w-16 px-2 py-1 text-center border border-rose-300 rounded-md text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500"
+                      placeholder="0"
+                    />
+                    <span className="text-sm text-primary-500">%</span>
+                  </div>
+                </div>
                 <Button
                   variant="secondary"
                   size="sm"
@@ -680,9 +768,23 @@ export const CreateJDPage = () => {
           <div className="space-y-6 border-t border-primary-200 pt-6">
             <div>
               <div className="mb-3 flex items-center justify-between">
-                <label className="text-base font-semibold text-emerald-600">
-                  Improve Efficiency & Add Value (การเพิ่มประสิทธิภาพและสร้างคุณค่าใหม่ๆ)
-                </label>
+                <div className="flex items-center gap-3">
+                  <label className="text-base font-semibold text-emerald-600">
+                    Improve Efficiency & Add Value (การเพิ่มประสิทธิภาพและสร้างคุณค่าใหม่ๆ)
+                  </label>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={responsibilityPercentages.efficiency || ''}
+                      onChange={(e) => updatePercentage('efficiency', parseInt(e.target.value))}
+                      className="w-16 px-2 py-1 text-center border border-emerald-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                      placeholder="0"
+                    />
+                    <span className="text-sm text-primary-500">%</span>
+                  </div>
+                </div>
                 <Button
                   variant="secondary"
                   size="sm"
@@ -722,9 +824,23 @@ export const CreateJDPage = () => {
           <div className="space-y-6 border-t border-primary-200 pt-6">
             <div>
               <div className="mb-3 flex items-center justify-between">
-                <label className="text-base font-semibold text-violet-600">
-                  Other Assigned Works (หน้าที่ความรับผิดชอบด้านอื่นๆ)
-                </label>
+                <div className="flex items-center gap-3">
+                  <label className="text-base font-semibold text-violet-600">
+                    Other Assigned Works (หน้าที่ความรับผิดชอบด้านอื่นๆ)
+                  </label>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={responsibilityPercentages.other || ''}
+                      onChange={(e) => updatePercentage('other', parseInt(e.target.value))}
+                      className="w-16 px-2 py-1 text-center border border-violet-300 rounded-md text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                      placeholder="0"
+                    />
+                    <span className="text-sm text-primary-500">%</span>
+                  </div>
+                </div>
                 <Button
                   variant="secondary"
                   size="sm"
