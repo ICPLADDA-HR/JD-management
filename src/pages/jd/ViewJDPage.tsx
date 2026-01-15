@@ -707,11 +707,12 @@ export const ViewJDPage = () => {
             </h3>
             
             {/* Spider Chart */}
-            {jd.competencies && jd.competencies.length > 0 && (
-              <div className="bg-white rounded-lg p-6 mb-6 border border-primary-100 competency-chart-container">
-                <CompetencyRadarChart competencies={jd.competencies} />
-              </div>
-            )}
+            <div className="bg-white rounded-lg p-6 mb-6 border border-primary-100 competency-chart-container">
+              <CompetencyRadarChart 
+                competencies={jd.competencies || []} 
+                allCompetencies={competencies}
+              />
+            </div>
 
             {/* Competency Details - Show all 6 competencies */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

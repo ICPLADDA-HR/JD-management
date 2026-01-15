@@ -14,6 +14,7 @@ interface CompetencyScore {
 
 interface CompetencyRadarChartProps {
   competencies: CompetencyScore[];
+  allCompetencies: Competency[]; // Add all competencies list
 }
 
 // Custom label component to show values on data points
@@ -34,31 +35,19 @@ const CustomLabel = (props: any) => {
   );
 };
 
-export const CompetencyRadarChart = ({ competencies }: CompetencyRadarChartProps) => {
-  // Transform data for radar chart
-  const chartData = competencies
-    .filter(c => c.score > 0) // Only show competencies with scores
-    .map(c => {
-      // Get competency name from the competency object if available
-      let competencyName = 'Unknown';
-      if (c.competency && typeof c.competency === 'object') {
-        competencyName = c.competency.name;
-      }
-      
-      return {
-        competency: competencyName,
-        score: c.score,
-        fullMark: 5,
-      };
-    });
-
-  if (chartData.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-96 text-gray-400">
-        <p>No competency scores available</p>
-      </div>
-    );
-  }
+export const CompetencyRadarChart = ({ competencies, allCompetencies }: CompetencyRadarChartProps) => {
+  // Transform data for radar chart - show all 6 competencies
+  const chartData = allCompetencies.map(comp => {
+    // Find the score for this competency
+    const compData = competencies.find(c => c.competency_id === comp.id);
+    const score = compData?.score || 0;
+    
+    return {
+      competency: comp.name,
+      score: score,
+      fullMark: 5,
+    };
+  });
 
   return (
     <div className="w-full h-96">
