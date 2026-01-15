@@ -212,6 +212,15 @@ export const RESPONSIBILITY_CATEGORIES = {
   other: 'Other Assigned Works',
 };
 // API Types for CRUD operations (matching Supabase schema)
+export interface ResponsibilityPercentages {
+  strategic?: number;
+  team_management?: number;
+  general?: number;
+  culture?: number;
+  efficiency?: number;
+  other?: number;
+}
+
 export interface JobDescriptionAPI {
   id: string;
   position: string;
@@ -223,6 +232,7 @@ export interface JobDescriptionAPI {
   direct_supervisor?: string;
   job_purpose: string;
   company_assets?: string[]; // Array of asset IDs
+  responsibility_percentages?: ResponsibilityPercentages;
   status: JDStatus;
   created_by: string;
   updated_by?: string;
@@ -269,6 +279,7 @@ export interface CreateJobDescriptionData {
   direct_supervisor?: string;
   job_purpose: string;
   company_assets?: string[]; // Array of asset IDs
+  responsibility_percentages?: ResponsibilityPercentages;
   status: JDStatus;
   created_by: string;
   responsibilities?: ResponsibilityItemAPI[];

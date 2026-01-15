@@ -358,6 +358,7 @@ export const CreateJDPage = () => {
         job_purpose: jobPurpose,
         status,
         created_by: user?.id || '550e8400-e29b-41d4-a716-446655440000', // Use test user ID if no auth
+        responsibility_percentages: responsibilityPercentages,
         responsibilities: allResponsibilities,
         risks: allRisks.map(risk => ({
           type: risk.type,

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useJobDescriptions } from '../../hooks/useJobDescriptions';
@@ -90,6 +90,27 @@ export const EditJDPage = () => {
   const [cultureResponsibilities, setCultureResponsibilities] = useState<ResponsibilityItem[]>([]);
   const [efficiencyResponsibilities, setEfficiencyResponsibilities] = useState<ResponsibilityItem[]>([]);
   const [otherResponsibilities, setOtherResponsibilities] = useState<ResponsibilityItem[]>([]);
+
+  // Responsibility percentages (must sum to 100)
+  const [responsibilityPercentages, setResponsibilityPercentages] = useState({
+    strategic: 0,
+    team_management: 0,
+    general: 0,
+    culture: 0,
+    efficiency: 0,
+    other: 0,
+  });
+
+  const totalPercentage = Object.values(responsibilityPercentages).reduce((sum, val) => sum + val, 0);
+
+  const updatePercentage = (category: keyof typeof responsibilityPercentages, value: number) => {
+    const numValue = Math.max(0, value || 0);
+    const currentValue = responsibilityPercentages[category];
+    const otherTotal = totalPercentage - currentValue;
+    const maxAllowed = 100 - otherTotal;
+    const finalValue = Math.min(numValue, maxAllowed);
+    setResponsibilityPercentages(prev => ({ ...prev, [category]: finalValue }));
+  };
 
   // Risks
   const [externalRisks, setExternalRisks] = useState<Risk[]>([{ type: 'external', description: '' }]);
@@ -340,6 +361,19 @@ export const EditJDPage = () => {
         setCultureResponsibilities(culture);
         setEfficiencyResponsibilities(efficiency);
         setOtherResponsibilities(other);
+      }
+      
+      // Load responsibility percentages
+      if (data.responsibility_percentages) {
+        console.log('Loading responsibility percentages:', data.responsibility_percentages);
+        setResponsibilityPercentages({
+          strategic: data.responsibility_percentages.strategic || 0,
+          team_management: data.responsibility_percentages.team_management || 0,
+          general: data.responsibility_percentages.general || 0,
+          culture: data.responsibility_percentages.culture || 0,
+          efficiency: data.responsibility_percentages.efficiency || 0,
+          other: data.responsibility_percentages.other || 0,
+        });
       }
       
       // Populate risks
@@ -626,6 +660,7 @@ export const EditJDPage = () => {
         job_purpose: jobPurpose,
         status,
         updated_by: user?.id || '550e8400-e29b-41d4-a716-446655440000',
+        responsibility_percentages: responsibilityPercentages,
         responsibilities: allResponsibilities,
         risks: allRisks.map(risk => ({
           type: risk.type,
@@ -1044,7 +1079,21 @@ export const EditJDPage = () => {
           <div className="space-y-6 pt-6">
             <div>
               <div className="mb-3 flex items-center justify-between">
-                <label className="text-base font-semibold text-indigo-600">Strategic (เชิงกลยุทธ์)</label>
+                <div className="flex items-center gap-3">
+                  <label className="text-base font-semibold text-indigo-600">Strategic (เชิงกลยุทธ์)</label>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={responsibilityPercentages.strategic || ''}
+                      onChange={(e) => updatePercentage('strategic', parseInt(e.target.value))}
+                      className="w-16 px-2 py-1 text-center border border-indigo-300 rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="0"
+                    />
+                    <span className="text-sm text-primary-500">%</span>
+                  </div>
+                </div>
                 <Button
                   variant="secondary"
                   size="sm"
@@ -1084,9 +1133,23 @@ export const EditJDPage = () => {
           <div className="space-y-6 border-t border-primary-200 pt-6">
             <div>
               <div className="mb-3 flex items-center justify-between">
-                <label className="text-base font-semibold text-cyan-600">
-                  Team Management & Development (การบริหารทีม และการพัฒนาบุคลากร)
-                </label>
+                <div className="flex items-center gap-3">
+                  <label className="text-base font-semibold text-cyan-600">
+                    Team Management & Development (การบริหารทีม และการพัฒนาบุคลากร)
+                  </label>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={responsibilityPercentages.team_management || ''}
+                      onChange={(e) => updatePercentage('team_management', parseInt(e.target.value))}
+                      className="w-16 px-2 py-1 text-center border border-cyan-300 rounded-md text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                      placeholder="0"
+                    />
+                    <span className="text-sm text-primary-500">%</span>
+                  </div>
+                </div>
                 <Button
                   variant="secondary"
                   size="sm"
@@ -1126,7 +1189,21 @@ export const EditJDPage = () => {
           <div className="space-y-6 border-t border-primary-200 pt-6">
             <div>
               <div className="mb-3 flex items-center justify-between">
-                <label className="text-base font-semibold text-amber-600">General Tasks (งานทั่วไป)</label>
+                <div className="flex items-center gap-3">
+                  <label className="text-base font-semibold text-amber-600">General Tasks (งานทั่วไป)</label>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={responsibilityPercentages.general || ''}
+                      onChange={(e) => updatePercentage('general', parseInt(e.target.value))}
+                      className="w-16 px-2 py-1 text-center border border-amber-300 rounded-md text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                      placeholder="0"
+                    />
+                    <span className="text-sm text-primary-500">%</span>
+                  </div>
+                </div>
                 <Button
                   variant="secondary"
                   size="sm"
@@ -1166,9 +1243,23 @@ export const EditJDPage = () => {
           <div className="space-y-6 border-t border-primary-200 pt-6">
             <div>
               <div className="mb-3 flex items-center justify-between">
-                <label className="text-base font-semibold text-rose-600">
-                  Culture Building (การสร้างและส่งเสริมวัฒนธรรมองค์กร)
-                </label>
+                <div className="flex items-center gap-3">
+                  <label className="text-base font-semibold text-rose-600">
+                    Culture Building (การสร้างและส่งเสริมวัฒนธรรมองค์กร)
+                  </label>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={responsibilityPercentages.culture || ''}
+                      onChange={(e) => updatePercentage('culture', parseInt(e.target.value))}
+                      className="w-16 px-2 py-1 text-center border border-rose-300 rounded-md text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500"
+                      placeholder="0"
+                    />
+                    <span className="text-sm text-primary-500">%</span>
+                  </div>
+                </div>
                 <Button
                   variant="secondary"
                   size="sm"
@@ -1210,7 +1301,20 @@ export const EditJDPage = () => {
               <div className="mb-3 flex items-center justify-between">
                 <label className="text-base font-semibold text-emerald-600">
                   Improve Efficiency & Add Value (การเพิ่มประสิทธิภาพและสร้างคุณค่าใหม่ๆ)
-                </label>
+                  </label>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={responsibilityPercentages.efficiency || ''}
+                      onChange={(e) => updatePercentage('efficiency', parseInt(e.target.value))}
+                      className="w-16 px-2 py-1 text-center border border-emerald-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                      placeholder="0"
+                    />
+                    <span className="text-sm text-primary-500">%</span>
+                  </div>
+                </div>
                 <Button
                   variant="secondary"
                   size="sm"
@@ -1250,9 +1354,23 @@ export const EditJDPage = () => {
           <div className="space-y-6 border-t border-primary-200 pt-6">
             <div>
               <div className="mb-3 flex items-center justify-between">
-                <label className="text-base font-semibold text-violet-600">
-                  Other Assigned Works (หน้าที่ความรับผิดชอบด้านอื่นๆ)
-                </label>
+                <div className="flex items-center gap-3">
+                  <label className="text-base font-semibold text-violet-600">
+                    Other Assigned Works (หน้าที่ความรับผิดชอบด้านอื่นๆ)
+                  </label>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={responsibilityPercentages.other || ''}
+                      onChange={(e) => updatePercentage('other', parseInt(e.target.value))}
+                      className="w-16 px-2 py-1 text-center border border-violet-300 rounded-md text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                      placeholder="0"
+                    />
+                    <span className="text-sm text-primary-500">%</span>
+                  </div>
+                </div>
                 <Button
                   variant="secondary"
                   size="sm"
@@ -1286,6 +1404,27 @@ export const EditJDPage = () => {
                 ))}
               </div>
             </div>
+          </div>
+
+          {/* Percentage Summary Bar */}
+          <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold text-gray-700">สัดส่วนรวม:</span>
+              <span className={`text-lg font-bold ${totalPercentage === 100 ? 'text-green-600' : totalPercentage > 100 ? 'text-red-600' : 'text-amber-600'}`}>
+                {totalPercentage}%
+              </span>
+            </div>
+            <div className="mt-2 w-full bg-gray-200 rounded-full h-3">
+              <div 
+                className={`h-3 rounded-full transition-all ${totalPercentage === 100 ? 'bg-green-500' : totalPercentage > 100 ? 'bg-red-500' : 'bg-amber-500'}`}
+                style={{ width: `${Math.min(totalPercentage, 100)}%` }}
+              />
+            </div>
+            {totalPercentage !== 100 && (
+              <p className={`mt-2 text-sm ${totalPercentage > 100 ? 'text-red-600' : 'text-amber-600'}`}>
+                {totalPercentage > 100 ? 'เกิน 100% กรุณาปรับลดสัดส่วน' : `ยังขาดอีก ${100 - totalPercentage}% เพื่อให้ครบ 100%`}
+              </p>
+            )}
           </div>
         </div>
         {/* Core Competencies */}
@@ -1517,13 +1656,14 @@ export const EditJDPage = () => {
             <Button
               onClick={handleSubmit}
               loading={submitting}
+              disabled={totalPercentage !== 100}
               icon={<Save className="w-4 h-4" />}
+              title={totalPercentage !== 100 ? 'สัดส่วนความรับผิดชอบต้องรวมกันเท่ากับ 100%' : ''}
             >
               Update Job Description
             </Button>
           </div>
         </div>
-      </div>
       </div>
     </div>
   );
