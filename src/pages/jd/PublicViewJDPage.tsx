@@ -222,29 +222,29 @@ export const PublicViewJDPage = () => {
               {/* Left Section */}
               <div className="flex-1">
                 <h1 className="text-3xl lg:text-4xl font-bold mb-3 lg:mb-4">{jd.position}</h1>
-                <div className="flex flex-wrap items-center gap-3 lg:gap-4 text-accent-50 text-sm lg:text-base">
-                  <span className="font-medium">{jd.job_band} • {jd.job_grade}</span>
+                <div className="flex flex-wrap items-center gap-2 text-accent-50 text-sm">
+                  <span className="font-medium whitespace-nowrap">{jd.job_band} • {jd.job_grade}</span>
                   <span className="text-accent-200">|</span>
-                  <span className="flex items-center gap-2">
-                    <Building2 className="w-4 h-4 lg:w-5 lg:h-5" />
+                  <span className="flex items-center gap-1 whitespace-nowrap">
+                    <Building2 className="w-4 h-4" />
                     {getDepartmentName(jd.department_id)}
                   </span>
                   <span className="text-accent-200">|</span>
-                  <span className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 lg:w-5 lg:h-5" />
+                  <span className="flex items-center gap-1 whitespace-nowrap">
+                    <MapPin className="w-4 h-4" />
                     {getLocationName(jd.location_id)}
                   </span>
                   <span className="text-accent-200">|</span>
-                  <span className="flex items-center gap-2">
-                    <Users className="w-4 h-4 lg:w-5 lg:h-5" />
+                  <span className="flex items-center gap-1 whitespace-nowrap">
+                    <Users className="w-4 h-4" />
                     <span className="font-medium">Team:</span>
                     {getTeamName(jd.team_id)}
                   </span>
                   {jd.direct_supervisor && (
                     <>
                       <span className="text-accent-200">|</span>
-                      <span className="flex items-center gap-2">
-                        <User className="w-4 h-4 lg:w-5 lg:h-5" />
+                      <span className="flex items-center gap-1 whitespace-nowrap">
+                        <User className="w-4 h-4" />
                         <span className="font-medium">Supervisor:</span>
                         {jd.direct_supervisor}
                       </span>
@@ -254,14 +254,14 @@ export const PublicViewJDPage = () => {
               </div>
 
               {/* Right Section */}
-              <div className="flex flex-col items-start lg:items-end gap-2 text-accent-50 text-sm lg:text-base">
-                <span className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 lg:w-5 lg:h-5" />
+              <div className="flex flex-col items-start lg:items-end gap-2 text-accent-50 text-sm">
+                <span className="flex items-center gap-2 whitespace-nowrap">
+                  <Calendar className="w-4 h-4" />
                   <span className="font-medium">Published:</span>
                   {formatDate(jd.created_at)}
                 </span>
-                <span className="flex items-center gap-2 text-accent-100">
-                  <Clock className="w-4 h-4 lg:w-5 lg:h-5" />
+                <span className="flex items-center gap-2 text-accent-100 whitespace-nowrap">
+                  <Clock className="w-4 h-4" />
                   <span className="font-medium">Last updated:</span>
                   {formatDate(jd.updated_at)}
                 </span>
