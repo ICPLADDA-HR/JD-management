@@ -93,8 +93,15 @@ export const useJobPositions = () => {
 
   const bulkImport = async (newPositions: Array<{ name: string }>) => {
     try {
+      // Fetch fresh data from database to get accurate existing names
+      const { data: currentPositions, error: fetchError } = await supabase
+        .from('job_positions')
+        .select('name');
+      
+      if (fetchError) throw fetchError;
+      
       // Get existing position names to filter duplicates
-      const existingNames = positions.map(p => p.name.toLowerCase());
+      const existingNames = (currentPositions || []).map(p => p.name.toLowerCase());
       
       // Filter out duplicates
       const uniquePositions = newPositions.filter(
