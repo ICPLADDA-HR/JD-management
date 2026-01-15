@@ -215,7 +215,7 @@ export const PublicViewJDPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-accent-50 to-primary-100 py-8 px-4">
       <div className="max-w-5xl mx-auto">
         {/* Job Description Content */}
-        <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-primary-100 overflow-hidden shadow-lg">
+        <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-primary-100 shadow-lg">
           {/* Header */}
           <div className="bg-gradient-to-r from-accent-500 to-accent-600 px-8 py-8 text-white">
             <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
