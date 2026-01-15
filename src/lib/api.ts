@@ -174,6 +174,11 @@ export const jobDescriptionsAPI = {
         insertData.company_assets = data.company_assets;
       }
 
+      // Include responsibility_percentages if provided
+      if (data.responsibility_percentages !== undefined) {
+        insertData.responsibility_percentages = data.responsibility_percentages;
+      }
+
       console.log('Inserting job description:', insertData);
 
       const { data: jdResult, error: jdError } = await supabase
@@ -293,6 +298,11 @@ export const jobDescriptionsAPI = {
       // Only include company_assets if it's provided (to avoid errors if column doesn't exist)
       if (data.company_assets !== undefined) {
         updateData.company_assets = data.company_assets;
+      }
+
+      // Include responsibility_percentages if provided
+      if (data.responsibility_percentages !== undefined) {
+        updateData.responsibility_percentages = data.responsibility_percentages;
       }
 
       console.log('Updating job description:', updateData);
