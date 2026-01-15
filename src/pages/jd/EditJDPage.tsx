@@ -10,6 +10,7 @@ import { useJobBands } from '../../hooks/useJobBands';
 import { useJobGrades } from '../../hooks/useJobGrades';
 import { useCompanyAssets } from '../../hooks/useCompanyAssets';
 import { Button } from '../../components/ui/Button';
+import { PositionAutocomplete } from '../../components/ui/PositionAutocomplete';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { Textarea } from '../../components/ui/Textarea';
@@ -956,11 +957,9 @@ export const EditJDPage = () => {
       <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-primary-100 p-6 shadow-sm space-y-6">
         {/* Basic Information */}
         <div className="grid gap-6 md:grid-cols-2">
-          <Input
-            label="Position (ตำแหน่งงาน)"
+          <PositionAutocomplete
             value={position}
-            onChange={(e) => setPosition(e.target.value)}
-            placeholder="e.g., Senior Operations Analyst"
+            onChange={setPosition}
             required
           />
           <Input
