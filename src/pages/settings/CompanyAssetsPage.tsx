@@ -48,11 +48,6 @@ export const CompanyAssetsPage = () => {
       'บัตรประจำตัว': <CreditCard className="w-4 h-4" />,
     };
     
-    // Log for debugging
-    if (!iconMap[assetName]) {
-      console.log('No icon found for asset:', assetName);
-    }
-    
     return iconMap[assetName] || <Package className="w-4 h-4" />;
   };
 

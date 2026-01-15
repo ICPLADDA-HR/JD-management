@@ -49,7 +49,10 @@ import {
   Tablet,
   Phone,
   Fuel,
+  Copy,
+  Check,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import type { JobDescriptionAPI } from '../../types';
 
 export const ViewJDPage = () => {
@@ -66,6 +69,8 @@ export const ViewJDPage = () => {
   const [jd, setJd] = useState<JobDescriptionAPI | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
 
   const canEdit = user?.role === 'admin' || user?.role === 'manager';
 
@@ -124,6 +129,52 @@ export const ViewJDPage = () => {
           font-size: 10pt !important;
           opacity: 0.95 !important;
           margin: 0 !important;
+        }
+        
+        /* Reorganize header layout for print */
+        @media print {
+          .print-header > div {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 20px !important;
+          }
+          
+          .print-header .flex-1 {
+            grid-column: 1 / 2 !important;
+          }
+          
+          .print-header .flex-1 h1 {
+            margin-bottom: 15px !important;
+          }
+          
+          /* Move job details to right side */
+          .print-header .flex-1 > div {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 8px !important;
+          }
+          
+          .print-header .flex-1 > div > span {
+            display: flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            font-size: 9pt !important;
+          }
+          
+          .print-header .flex-1 > div > span.text-accent-200 {
+            display: none !important;
+          }
+          
+          /* Right section positioning */
+          .print-header > div > div:last-child {
+            grid-column: 2 / 3 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: flex-end !important;
+            justify-content: flex-start !important;
+            gap: 8px !important;
+          }
         }
         
         /* Content sections - Allow natural flow */
@@ -425,6 +476,23 @@ export const ViewJDPage = () => {
     window.print();
   };
 
+  const handleShare = () => {
+    setShowShareModal(true);
+    setCopySuccess(false);
+  };
+
+  const handleCopyLink = async () => {
+    const shareUrl = `${window.location.origin}/jd/${id}`;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopySuccess(true);
+      toast.success('Link copied to clipboard!');
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (err) {
+      toast.error('Failed to copy link');
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     const styles = {
       draft: 'bg-yellow-100 text-yellow-800',
@@ -506,11 +574,6 @@ export const ViewJDPage = () => {
       'Access Card': <CreditCard className="w-4 h-4" />,
       'บัตรประจำตัว': <CreditCard className="w-4 h-4" />,
     };
-    
-    // Log for debugging
-    if (!iconMap[assetName]) {
-      console.log('No icon found for asset:', assetName);
-    }
     
     return iconMap[assetName] || <Package className="w-4 h-4" />;
   };
@@ -596,6 +659,7 @@ export const ViewJDPage = () => {
           </Button>
           <Button
             variant="ghost"
+            onClick={handleShare}
             icon={<Share2 className="w-4 h-4" />}
           >
             Share
@@ -621,19 +685,20 @@ export const ViewJDPage = () => {
             {/* Left Section */}
             <div className="flex-1">
               <h1 className="text-3xl lg:text-4xl font-bold mb-3 lg:mb-4">{jd.position}</h1>
-              <div className="flex flex-wrap items-center gap-3 lg:gap-4 text-accent-50 text-sm lg:text-base">
+              {/* Job details - will move to right on print */}
+              <div className="flex flex-wrap items-center gap-3 lg:gap-4 text-accent-50 text-sm lg:text-base print:flex-col print:items-start print:gap-2">
                 <span className="font-medium">{jd.job_band} • {jd.job_grade}</span>
-                <span className="text-accent-200">|</span>
+                <span className="text-accent-200 print:hidden">|</span>
                 <span className="flex items-center gap-2">
                   <Building2 className="w-4 h-4 lg:w-5 lg:h-5" />
                   {getDepartmentName(jd.department_id)}
                 </span>
-                <span className="text-accent-200">|</span>
+                <span className="text-accent-200 print:hidden">|</span>
                 <span className="flex items-center gap-2">
                   <MapPin className="w-4 h-4 lg:w-5 lg:h-5" />
                   {getLocationName(jd.location_id)}
                 </span>
-                <span className="text-accent-200">|</span>
+                <span className="text-accent-200 print:hidden">|</span>
                 <span className="flex items-center gap-2">
                   <Users className="w-4 h-4 lg:w-5 lg:h-5" />
                   <span className="font-medium">Team:</span>
@@ -641,7 +706,7 @@ export const ViewJDPage = () => {
                 </span>
                 {jd.direct_supervisor && (
                   <>
-                    <span className="text-accent-200">|</span>
+                    <span className="text-accent-200 print:hidden">|</span>
                     <span className="flex items-center gap-2">
                       <User className="w-4 h-4 lg:w-5 lg:h-5" />
                       <span className="font-medium">Supervisor:</span>
@@ -898,6 +963,49 @@ export const ViewJDPage = () => {
                 className="bg-red-600 hover:bg-red-700 text-white"
               >
                 Delete
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Share Modal */}
+      {showShareModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-lg w-full mx-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-accent-100 rounded-lg">
+                <Share2 className="w-5 h-5 text-accent-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">Share Job Description</h3>
+            </div>
+            <p className="text-gray-600 mb-4">
+              Share this job description with others. Anyone with this link can view this position.
+            </p>
+            <div className="bg-gray-50 rounded-lg p-4 mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Shareable Link
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={`${window.location.origin}/jd/${id}`}
+                  className="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-accent-500"
+                  onClick={(e) => e.currentTarget.select()}
+                />
+                <Button
+                  onClick={handleCopyLink}
+                  icon={copySuccess ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                  className={copySuccess ? 'bg-green-600 hover:bg-green-700' : ''}
+                >
+                  {copySuccess ? 'Copied!' : 'Copy'}
+                </Button>
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <Button variant="ghost" onClick={() => setShowShareModal(false)}>
+                Close
               </Button>
             </div>
           </div>
