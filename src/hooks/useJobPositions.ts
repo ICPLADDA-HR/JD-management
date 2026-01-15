@@ -91,17 +91,37 @@ export const useJobPositions = () => {
     }
   };
 
-  const bulkImport = async (positions: Array<{ name: string }>) => {
+  const bulkImport = async (newPositions: Array<{ name: string }>) => {
     try {
+      // Get existing position names to filter duplicates
+      const existingNames = positions.map(p => p.name.toLowerCase());
+      
+      // Filter out duplicates
+      const uniquePositions = newPositions.filter(
+        p => !existingNames.includes(p.name.toLowerCase())
+      );
+      
+      const skippedCount = newPositions.length - uniquePositions.length;
+      
+      if (uniquePositions.length === 0) {
+        toast.error(`ตำแหน่งงานทั้งหมด ${newPositions.length} รายการมีอยู่แล้วในระบบ`);
+        return [];
+      }
+      
       const { data, error } = await supabase
         .from('job_positions')
-        .insert(positions)
+        .insert(uniquePositions)
         .select();
 
       if (error) throw error;
       
       await fetchPositions();
-      toast.success(`นำเข้าตำแหน่งงานสำเร็จ ${data.length} รายการ`);
+      
+      if (skippedCount > 0) {
+        toast.success(`นำเข้าสำเร็จ ${data.length} รายการ (ข้าม ${skippedCount} รายการที่ซ้ำ)`);
+      } else {
+        toast.success(`นำเข้าตำแหน่งงานสำเร็จ ${data.length} รายการ`);
+      }
       return data;
     } catch (error: any) {
       console.error('Error importing positions:', error);
