@@ -54,20 +54,18 @@ export const useJobPositions = () => {
 
   const updatePosition = async (id: string, name: string, description?: string) => {
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('job_positions')
         .update({ name, description, updated_at: new Date().toISOString() })
-        .eq('id', id)
-        .select()
-        .single();
+        .eq('id', id);
 
       if (error) throw error;
       
+      // Update local state
       setPositions(prev => 
-        prev.map(pos => pos.id === id ? data : pos).sort((a, b) => a.name.localeCompare(b.name))
+        prev.map(pos => pos.id === id ? { ...pos, name, description, updated_at: new Date().toISOString() } : pos).sort((a, b) => a.name.localeCompare(b.name))
       );
       toast.success('แก้ไขตำแหน่งงานสำเร็จ');
-      return data;
     } catch (error: any) {
       console.error('Error updating position:', error);
       toast.error(error.message || 'ไม่สามารถแก้ไขตำแหน่งงานได้');

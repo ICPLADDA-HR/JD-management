@@ -78,12 +78,10 @@ export const useCompanyAssets = () => {
         throw new Error('ทรัพย์สินนี้มีอยู่แล้ว');
       }
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('company_assets')
         .update({ name, description })
-        .eq('id', id)
-        .select()
-        .single();
+        .eq('id', id);
 
       if (error) {
         if (error.code === '23505') {
@@ -92,11 +90,11 @@ export const useCompanyAssets = () => {
         throw error;
       }
 
+      // Update local state
       setAssets(prev =>
-        prev.map(asset => asset.id === id ? data : asset).sort((a, b) => a.name.localeCompare(b.name))
+        prev.map(asset => asset.id === id ? { ...asset, name, description } : asset).sort((a, b) => a.name.localeCompare(b.name))
       );
       toast.success('อัปเดตทรัพย์สินสำเร็จ');
-      return data;
     } catch (error: any) {
       console.error('Error updating asset:', error);
       toast.error(error.message || 'ไม่สามารถอัปเดตทรัพย์สินได้');
