@@ -1,11 +1,11 @@
-import { Link } from 'react-router-dom';
+﻿import { Link } from 'react-router-dom';
 import { Building, Users, MapPin, Award, Layers, TrendingUp, Package, Briefcase } from 'lucide-react';
 
 export const SettingsPage = () => {
   const settings = [
     { name: 'Departments', icon: Building, href: '/settings/departments' },
     { name: 'Teams', icon: Users, href: '/settings/teams' },
-    { name: 'Locations', icon: MapPin, href: '/settings/locations' },
+    { name: 'Types', icon: MapPin, href: '/settings/locations' },
     { name: 'Competencies', icon: Award, href: '/settings/competencies' },
     { name: 'Job Bands', icon: Layers, href: '/settings/job-bands' },
     { name: 'Job Grades', icon: TrendingUp, href: '/settings/job-grades' },

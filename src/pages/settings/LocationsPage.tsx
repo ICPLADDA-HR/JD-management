@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useLocations } from '../../hooks/useLocations';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -131,8 +131,8 @@ export const LocationsPage = () => {
     <div>
       <div className="flex items-center justify-between mb-12">
         <div>
-          <h1 className="text-heading-1 font-semibold text-primary-600">Locations</h1>
-          <p className="text-body text-primary-400 mt-2">Manage office locations</p>
+          <h1 className="text-heading-1 font-semibold text-primary-600">Types</h1>
+          <p className="text-body text-primary-400 mt-2">Manage job types (ประเภทงาน)</p>
         </div>
         <Button
           onClick={() => {
@@ -142,7 +142,7 @@ export const LocationsPage = () => {
           }}
           icon={<Plus className="w-5 h-5" />}
         >
-          Add Location
+          Add Type
         </Button>
       </div>
 
@@ -162,7 +162,7 @@ export const LocationsPage = () => {
 
         {locations.length === 0 && (
           <div className="text-center py-20 bg-white/60 backdrop-blur-sm rounded-2xl border border-primary-100">
-            <p className="text-body text-primary-400">No locations found. Add your first location!</p>
+            <p className="text-body text-primary-400">No types found. Add your first type!</p>
           </div>
         )}
       </div>
@@ -170,14 +170,14 @@ export const LocationsPage = () => {
       <Modal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        title={editingLocation ? 'Edit Location' : 'Add Location'}
+        title={editingLocation ? 'Edit Type' : 'Add Type'}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            label="Location Name"
+            label="Type Name (ชื่อประเภท)"
             value={formName}
             onChange={(e) => setFormName(e.target.value)}
-            placeholder="Enter location name"
+            placeholder="Enter Type Name (ชื่อประเภท)"
             required
             autoFocus
           />
@@ -196,7 +196,7 @@ export const LocationsPage = () => {
         isOpen={!!deleteConfirm}
         onClose={() => setDeleteConfirm(null)}
         onConfirm={handleDelete}
-        title="Delete Location"
+        title="Delete Type"
         message={`Are you sure you want to delete "${deleteConfirm?.name}"? This action cannot be undone.`}
         confirmText="Delete"
         danger
