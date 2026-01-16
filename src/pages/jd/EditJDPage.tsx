@@ -1003,12 +1003,12 @@ export const EditJDPage = () => {
           </Select>
 
           <Select
-            label="Location (สถานที่)"
+            label="Type (ประเภท)"
             value={locationId}
             onChange={(e) => setLocationId(e.target.value)}
             required
           >
-            <option value="">Select location</option>
+            <option value="">Select type</option>
             {locations.map((loc) => (
               <option key={loc.id} value={loc.id}>
                 {loc.name}
