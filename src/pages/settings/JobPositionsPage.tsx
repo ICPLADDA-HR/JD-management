@@ -1,154 +1,135 @@
-﻿import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useJobPositions } from '../../hooks/useJobPositions';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { Plus, Edit2, Trash2, Briefcase, Upload, Download } from 'lucide-react';
+import { Modal } from '../../components/ui/Modal';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { Plus, Edit2, Trash2, Upload } from 'lucide-react';
+import type { JobPosition } from '../../hooks/useJobPositions';
 import toast from 'react-hot-toast';
 
 export const JobPositionsPage = () => {
   const { positions, loading, addPosition, updatePosition, deletePosition, bulkImport } = useJobPositions();
-  const [isAdding, setIsAdding] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [newName, setNewName] = useState('');
-  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [editingPosition, setEditingPosition] = useState<JobPosition | null>(null);
+  const [formName, setFormName] = useState('');
+  const [formDescription, setFormDescription] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState<JobPosition | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleAdd = async () => {
-    if (!newName.trim()) {
-      toast.error('กรุณากรอกชื่อตำแหน่งงาน');
-      return;
-    }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formName.trim()) return;
 
+    setSubmitting(true);
     try {
-      await addPosition(newName.trim());
-      setNewName('');
-      setIsAdding(false);
+      if (editingPosition) {
+        await updatePosition(editingPosition.id, formName.trim(), formDescription.trim() || undefined);
+      } else {
+        await addPosition(formName.trim(), formDescription.trim() || undefined);
+      }
+      setShowModal(false);
+      setFormName('');
+      setFormDescription('');
+      setEditingPosition(null);
     } catch (error) {
-      // Error handled in hook
+      console.error(error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handleUpdate = async (id: string) => {
-    if (!newName.trim()) {
-      toast.error('กรุณากรอกชื่อตำแหน่งงาน');
-      return;
-    }
-
-    try {
-      await updatePosition(id, newName.trim());
-      setEditingId(null);
-      setNewName('');
-    } catch (error) {
-      // Error handled in hook
-    }
+  const handleEdit = (position: JobPosition) => {
+    setEditingPosition(position);
+    setFormName(position.name);
+    setFormDescription(position.description || '');
+    setShowModal(true);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async () => {
+    if (!deleteConfirm) return;
+    setSubmitting(true);
     try {
-      await deletePosition(id);
+      await deletePosition(deleteConfirm.id);
       setDeleteConfirm(null);
     } catch (error) {
-      // Error handled in hook
+      console.error(error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const startEdit = (id: string, name: string) => {
-    setEditingId(id);
-    setNewName(name);
-    setIsAdding(false);
-  };
-
-  const cancelEdit = () => {
-    setEditingId(null);
-    setIsAdding(false);
-    setNewName('');
-  };
-
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = async (e) => {
+    reader.onload = async (event) => {
       try {
-        const text = e.target?.result as string;
+        const text = event.target?.result as string;
         const lines = text.split('\n').filter(line => line.trim());
-        
-        // Parse CSV: just position names, one per line
-        const positionsToImport = lines.slice(1).map(line => {
-          const name = line.trim();
-          return { name };
-        }).filter(pos => pos.name);
+
+        // Skip header if exists
+        const startIndex = lines[0].toLowerCase().includes('position') || lines[0].toLowerCase().includes('name') ? 1 : 0;
+        const positionsToImport = lines.slice(startIndex).map(line => ({
+          name: line.trim()
+        })).filter(p => p.name);
 
         if (positionsToImport.length === 0) {
-          toast.error('ไม่พบข้อมูลตำแหน่งงานที่ถูกต้องในไฟล์');
+          toast.error('ไม่พบข้อมูลในไฟล์');
           return;
         }
 
         await bulkImport(positionsToImport);
       } catch (error) {
         console.error('Error parsing file:', error);
-        toast.error('ไม่สามารถอ่านไฟล์ได้ กรุณาใช้รูปแบบ CSV: ชื่อตำแหน่งงาน (หนึ่งตำแหน่งต่อบรรทัด)');
+        toast.error('ไม่สามารถอ่านไฟล์ได้');
       }
     };
-
     reader.readAsText(file);
-    
-    // Reset file input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
 
-  const downloadTemplate = () => {
-    const csv = 'name\nSenior Manager\nProject Manager\nTechnical Lead';
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'job_positions_template.csv';
-    a.click();
-    window.URL.revokeObjectURL(url);
+    // Reset input
+    e.target.value = '';
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div>
+      <div className="flex items-center justify-between mb-12">
         <div>
           <h1 className="text-heading-1 font-semibold text-primary-600">Job Positions</h1>
-          <p className="text-body text-primary-400 mt-1">
-            Manage job position titles used in job descriptions
-          </p>
+          <p className="text-body text-primary-400 mt-2">จัดการตำแหน่งงานในองค์กร</p>
         </div>
-        <div className="flex gap-2">
-          <Button
-            variant="ghost"
-            onClick={downloadTemplate}
-            icon={<Download className="w-5 h-5" />}
-          >
-            ดาวน์โหลดตัวอย่าง
-          </Button>
-          <Button
-            variant="ghost"
-            onClick={() => fileInputRef.current?.click()}
-            icon={<Upload className="w-5 h-5" />}
-          >
-            นำเข้าจาก CSV
-          </Button>
+        <div className="flex gap-3">
+          <label htmlFor="import-file">
+            <Button
+              as="span"
+              variant="secondary"
+              icon={<Upload className="w-5 h-5" />}
+            >
+              นำเข้าจากไฟล์
+            </Button>
+          </label>
+          <input
+            id="import-file"
+            type="file"
+            accept=".txt,.csv"
+            onChange={handleImport}
+            className="hidden"
+          />
           <Button
             onClick={() => {
-              setIsAdding(true);
-              setEditingId(null);
-              setNewName('');
+              setEditingPosition(null);
+              setFormName('');
+              setFormDescription('');
+              setShowModal(true);
             }}
             icon={<Plus className="w-5 h-5" />}
           >
@@ -157,136 +138,117 @@ export const JobPositionsPage = () => {
         </div>
       </div>
 
-      {/* Hidden file input */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".csv"
-        onChange={handleFileUpload}
-        className="hidden"
-      />
-
-      {/* Add/Edit Form */}
-      {(isAdding || editingId) && (
-        <div key={editingId || 'new'} className="bg-white/60 backdrop-blur-sm rounded-2xl border border-primary-100 p-6">
-          <h3 className="text-body-lg font-semibold text-primary-600 mb-4">
-            {isAdding ? 'เพิ่มตำแหน่งงานใหม่' : 'แก้ไขตำแหน่งงาน'}
-          </h3>
-          <div className="space-y-4">
-            <Input
-              label="ชื่อตำแหน่งงาน"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              placeholder="เช่น Senior Manager, Developer"
-              required
-            />
-            <div className="flex gap-2">
-              <Button
-                onClick={() => (isAdding ? handleAdd() : handleUpdate(editingId!))}
-              >
-                {isAdding ? 'เพิ่มตำแหน่งงาน' : 'บันทึกการแก้ไข'}
-              </Button>
-              <Button variant="ghost" onClick={cancelEdit}>
-                ยกเลิก
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Positions List */}
-      <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-primary-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-primary-50/50 border-b border-primary-100">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
-                  ชื่อตำแหน่งงาน
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-primary-500 uppercase tracking-wider">
-                  การจัดการ
-                </th>
+      <div className="bg-white rounded-2xl shadow-sm border border-primary-100 overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                ตำแหน่งงาน
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                คำอธิบาย
+              </th>
+              <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                จัดการ
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {positions.map((position) => (
+              <tr key={position.id} className="hover:bg-gray-50 transition-colors">
+                <td className="px-6 py-4">
+                  <p className="text-body-lg font-medium text-primary-600">{position.name}</p>
+                </td>
+                <td className="px-6 py-4">
+                  <p className="text-body text-gray-500">{position.description || '-'}</p>
+                </td>
+                <td className="px-6 py-4 text-right">
+                  <div className="flex gap-2 justify-end">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEdit(position)}
+                      icon={<Edit2 className="w-4 h-4" />}
+                    >
+                      แก้ไข
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setDeleteConfirm(position)}
+                      icon={<Trash2 className="w-4 h-4" />}
+                    >
+                      ลบ
+                    </Button>
+                  </div>
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-primary-100">
-              {positions.length === 0 ? (
-                <tr>
-                  <td colSpan={2} className="px-6 py-12 text-center">
-                    <Briefcase className="w-12 h-12 text-primary-300 mx-auto mb-3" />
-                    <p className="text-body text-primary-400">ยังไม่มีตำแหน่งงาน</p>
-                    <p className="text-body-sm text-primary-300 mt-1">
-                      คลิก "เพิ่มตำแหน่งงาน" เพื่อสร้างตำแหน่งงานแรก
-                    </p>
-                  </td>
-                </tr>
-              ) : (
-                positions.map((position) => (
-                  <tr key={position.id} className="hover:bg-primary-50/30 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <Briefcase className="w-4 h-4 text-primary-400" />
-                        <span className="text-body font-medium text-primary-600">
-                          {position.name}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => startEdit(position.id, position.name)}
-                          icon={<Edit2 className="w-4 h-4" />}
-                        >
-                          แก้ไข
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setDeleteConfirm(position.id)}
-                          icon={<Trash2 className="w-4 h-4" />}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          ลบ
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
+
+        {positions.length === 0 && (
+          <div className="text-center py-20">
+            <p className="text-body text-primary-400">ยังไม่มีตำแหน่งงาน เพิ่มตำแหน่งแรกของคุณ!</p>
+          </div>
+        )}
       </div>
 
-      {/* Delete Confirmation Modal */}
-      {deleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-red-100 rounded-lg">
-                <Trash2 className="w-5 h-5 text-red-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900">ลบตำแหน่งงาน</h3>
-            </div>
-            <p className="text-gray-600 mb-4">
-              คุณแน่ใจหรือไม่ว่าต้องการลบตำแหน่งงานนี้? การดำเนินการนี้ไม่สามารถย้อนกลับได้
-            </p>
-            <div className="flex justify-end gap-2">
-              <Button variant="ghost" onClick={() => setDeleteConfirm(null)}>
-                ยกเลิก
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => handleDelete(deleteConfirm)}
-                className="bg-red-600 hover:bg-red-700 text-white"
-              >
-                ลบ
-              </Button>
-            </div>
+      <Modal
+        isOpen={showModal}
+        onClose={() => {
+          setShowModal(false);
+          setEditingPosition(null);
+          setFormName('');
+          setFormDescription('');
+        }}
+        title={editingPosition ? 'แก้ไขตำแหน่งงาน' : 'เพิ่มตำแหน่งงาน'}
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
+            label="ชื่อตำแหน่งงาน"
+            value={formName}
+            onChange={(e) => setFormName(e.target.value)}
+            placeholder="กรอกชื่อตำแหน่งงาน"
+            required
+            autoFocus
+          />
+          <Input
+            label="คำอธิบาย (ไม่บังคับ)"
+            value={formDescription}
+            onChange={(e) => setFormDescription(e.target.value)}
+            placeholder="กรอกคำอธิบายตำแหน่งงาน"
+          />
+          <div className="flex gap-3 justify-end pt-4">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                setShowModal(false);
+                setEditingPosition(null);
+                setFormName('');
+                setFormDescription('');
+              }}
+            >
+              ยกเลิก
+            </Button>
+            <Button type="submit" loading={submitting}>
+              {editingPosition ? 'บันทึก' : 'เพิ่ม'}
+            </Button>
           </div>
-        </div>
-      )}
+        </form>
+      </Modal>
+
+      <ConfirmDialog
+        isOpen={!!deleteConfirm}
+        onClose={() => setDeleteConfirm(null)}
+        onConfirm={handleDelete}
+        title="ลบตำแหน่งงาน"
+        message={`คุณแน่ใจหรือไม่ที่จะลบ "${deleteConfirm?.name}"? การลบนี้อาจส่งผลต่อ Job Description ที่เกี่ยวข้อง`}
+        confirmText="ลบ"
+        danger
+        loading={submitting}
+      />
     </div>
   );
 };
