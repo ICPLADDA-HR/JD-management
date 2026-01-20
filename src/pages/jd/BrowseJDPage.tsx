@@ -59,6 +59,18 @@ export const BrowseJDPage = () => {
     return false;
   };
 
+  // Helper function to check if user can publish a specific JD
+  const canPublishJD = (jd: any): boolean => {
+    if (!user) return false;
+    // Only Admin and Manager can publish
+    if (user.role === 'admin') return true;
+    if (user.role === 'manager') {
+      return jd.created_by === user.id || (jd.team_id && jd.team_id === user.team_id);
+    }
+    // Viewer cannot publish
+    return false;
+  };
+
   // Everyone can create JD now (including Viewer)
   const canCreate = !!user;
 
@@ -386,7 +398,7 @@ export const BrowseJDPage = () => {
                               </Button>
                             </Link>
 
-                            {jd.status === 'draft' && (
+                            {jd.status === 'draft' && canPublishJD(jd) && (
                               <Button
                                 variant="ghost"
                                 size="sm"
