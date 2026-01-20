@@ -6,6 +6,7 @@ interface User {
   email: string;
   full_name: string;
   role: 'admin' | 'manager' | 'viewer';
+  team_id: string | null;
 }
 
 interface AuthContextType {
@@ -54,7 +55,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       // Try to get user profile
       const { data, error } = await supabase
         .from('users')
-        .select('id, email, full_name, role')
+        .select('id, email, full_name, role, team_id')
         .eq('id', userId)
         .maybeSingle();
 
@@ -70,6 +71,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           email: data.email,
           full_name: data.full_name,
           role: data.role as 'admin' | 'manager' | 'viewer',
+          team_id: data.team_id,
         });
       } else {
         // User profile doesn't exist - create it
@@ -81,6 +83,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             email: authUser.user.email || '',
             full_name: authUser.user.user_metadata?.full_name || authUser.user.email?.split('@')[0] || 'User',
             role: 'viewer' as const,
+            team_id: null,
           };
 
           const { error: insertError } = await supabase

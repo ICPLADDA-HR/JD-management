@@ -42,7 +42,24 @@ export const BrowseJDPage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-  const canEdit = user?.role === 'admin' || user?.role === 'manager';
+  // Helper function to check if user can edit a specific JD
+  const canEditJD = (jd: any): boolean => {
+    if (!user) return false;
+    // Admin can edit everything
+    if (user.role === 'admin') return true;
+    // Manager can edit their own + team members' JDs
+    if (user.role === 'manager') {
+      return jd.created_by === user.id || (jd.team_id && jd.team_id === user.team_id);
+    }
+    // Viewer can edit only their own JDs
+    if (user.role === 'viewer') {
+      return jd.created_by === user.id;
+    }
+    return false;
+  };
+
+  // Everyone can create JD now (including Viewer)
+  const canCreate = !!user;
 
   // Get available job grades based on selected job band
   const getAvailableGrades = () => {
@@ -158,7 +175,7 @@ export const BrowseJDPage = () => {
           <h1 className="text-3xl font-bold text-primary-600">Job Descriptions</h1>
           <p className="text-primary-400 mt-1">Manage and browse job descriptions</p>
         </div>
-        {canEdit && (
+        {canCreate && (
           <Link to="/jd/create">
             <Button icon={<Plus className="w-5 h-5" />}>
               Create JD
@@ -280,7 +297,7 @@ export const BrowseJDPage = () => {
           <div className="text-center py-12">
             <FileText className="w-16 h-16 text-primary-300 mx-auto mb-4" />
             <p className="text-body text-primary-400 mb-4">No job descriptions found.</p>
-            {canEdit && (
+            {canCreate && (
               <Link to="/jd/create">
                 <Button icon={<Plus className="w-5 h-5" />}>
                   Create First JD
@@ -350,8 +367,8 @@ export const BrowseJDPage = () => {
                             View
                           </Button>
                         </Link>
-                        
-                        {canEdit && (
+
+                        {canEditJD(jd) && (
                           <>
                             <Link to={`/jd/${jd.id}/edit`}>
                               <Button variant="ghost" size="sm" icon={<Edit className="w-4 h-4" />}>
