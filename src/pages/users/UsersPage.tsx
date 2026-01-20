@@ -4,6 +4,7 @@ import { useUsers } from '../../hooks/useUsers';
 import { useLocations } from '../../hooks/useLocations';
 import { useDepartments } from '../../hooks/useDepartments';
 import { useTeams } from '../../hooks/useTeams';
+import { useJobGrades } from '../../hooks/useJobGrades';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
@@ -40,6 +41,7 @@ export const UsersPage = () => {
   const { locations } = useLocations();
   const { departments } = useDepartments();
   const { teams } = useTeams();
+  const { jobGrades } = useJobGrades();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<'all' | 'admin' | 'manager' | 'viewer'>('all');
@@ -429,13 +431,15 @@ export const UsersPage = () => {
                   onChange={(e) => setFormData({ ...formData, jobGrade: e.target.value as any })}
                 >
                   <option value="">Select Job Grade</option>
-                  <option value="1.1">1.1</option>
-                  <option value="1.2">1.2</option>
-                  <option value="2.1">2.1</option>
-                  <option value="2.2">2.2</option>
-                  <option value="3.1">3.1</option>
-                  <option value="3.2">3.2</option>
-                  <option value="5">5</option>
+                  {jobGrades.map((jg) => {
+                    // Extract numeric value from name (e.g., "JG 1.1 Staff" -> "1.1")
+                    const gradeValue = jg.name.match(/JG (\d+\.?\d*)/)?.[1] || '';
+                    return (
+                      <option key={jg.id} value={gradeValue}>
+                        {jg.name}
+                      </option>
+                    );
+                  })}
                 </Select>
                 <Select
                   label="Location"
@@ -531,13 +535,15 @@ export const UsersPage = () => {
                   onChange={(e) => setFormData({ ...formData, jobGrade: e.target.value as any })}
                 >
                   <option value="">Select Job Grade</option>
-                  <option value="1.1">1.1</option>
-                  <option value="1.2">1.2</option>
-                  <option value="2.1">2.1</option>
-                  <option value="2.2">2.2</option>
-                  <option value="3.1">3.1</option>
-                  <option value="3.2">3.2</option>
-                  <option value="5">5</option>
+                  {jobGrades.map((jg) => {
+                    // Extract numeric value from name (e.g., "JG 1.1 Staff" -> "1.1")
+                    const gradeValue = jg.name.match(/JG (\d+\.?\d*)/)?.[1] || '';
+                    return (
+                      <option key={jg.id} value={gradeValue}>
+                        {jg.name}
+                      </option>
+                    );
+                  })}
                 </Select>
                 <Select
                   label="Location"
