@@ -30,26 +30,38 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
+    console.log('[Auth Debug] 1. useEffect started');
+    const startTime = Date.now();
+
     // Timeout fallback - if loading takes more than 5 seconds, stop loading
     // This prevents infinite loading if Supabase connection fails
     const timeoutId = setTimeout(() => {
       if (!initialized) {
-        console.warn('Auth loading timeout - stopping loading state');
+        console.warn('[Auth Debug] TIMEOUT after 5 seconds - forcing stop');
         setLoading(false);
         setInitialized(true);
       }
     }, 5000);
 
     // Check active sessions and sets the user
+    console.log('[Auth Debug] 2. Calling getSession()...');
     supabase.auth.getSession().then(({ data: { session } }) => {
+      const elapsed = Date.now() - startTime;
+      console.log(`[Auth Debug] 3. getSession() returned after ${elapsed}ms`);
+      console.log('[Auth Debug] 4. Session exists:', !!session);
+      console.log('[Auth Debug] 5. Session user:', session?.user?.email || 'no user');
+
       setInitialized(true);
       if (session?.user) {
+        console.log('[Auth Debug] 6. Calling fetchUserProfile...');
         fetchUserProfile(session.user.id);
       } else {
+        console.log('[Auth Debug] 6. No session - setLoading(false)');
         setLoading(false);
       }
     }).catch((error) => {
-      console.error('Error getting session:', error);
+      const elapsed = Date.now() - startTime;
+      console.error(`[Auth Debug] ERROR in getSession() after ${elapsed}ms:`, error);
       setLoading(false);
       setInitialized(true);
     });
@@ -58,6 +70,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      console.log('[Auth Debug] onAuthStateChange event:', _event);
+      console.log('[Auth Debug] onAuthStateChange session:', !!session);
       if (session?.user) {
         await fetchUserProfile(session.user.id);
       } else {
@@ -73,17 +87,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   const fetchUserProfile = async (userId: string) => {
+    console.log('[Auth Debug] 7. fetchUserProfile started for userId:', userId);
+    const profileStartTime = Date.now();
+
     try {
       // Try to get user profile WITHOUT job_grade first (for backwards compatibility)
+      console.log('[Auth Debug] 8. Querying users table...');
       let { data, error } = await supabase
         .from('users')
         .select('id, email, full_name, role, team_id')
         .eq('id', userId)
         .maybeSingle();
 
+      const elapsed = Date.now() - profileStartTime;
+      console.log(`[Auth Debug] 9. Users query returned after ${elapsed}ms`);
+      console.log('[Auth Debug] 10. Query result - data:', !!data, 'error:', error?.code || 'none');
+
       if (error && error.code !== 'PGRST116') {
         // Only throw if it's not a "no rows" error
-        console.error('Error loading user profile:', error);
+        console.error('[Auth Debug] ERROR loading user profile:', error);
         // Sign out on profile fetch error to prevent infinite loops
         await supabase.auth.signOut();
         setUser(null);
@@ -92,6 +114,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
 
       if (data) {
+        console.log('[Auth Debug] 11. User profile found:', data.email);
         // User profile exists - set user with job_grade as null for now
         setUser({
           id: data.id,
@@ -101,6 +124,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           job_grade: null, // Will be null until migration is run
           team_id: data.team_id,
         });
+        console.log('[Auth Debug] 12. setUser() called, setLoading(false) will be called in finally');
       } else {
         // User profile doesn't exist - create it
         const { data: authUser } = await supabase.auth.getUser();
