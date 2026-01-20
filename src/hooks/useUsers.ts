@@ -149,6 +149,7 @@ export const useUsers = () => {
       departmentId?: string;
       teamId?: string;
       isActive?: boolean;
+      additionalTeamIds?: string[];
     }
   ) => {
     try {
@@ -167,6 +168,36 @@ export const useUsers = () => {
         .eq('id', userId);
 
       if (error) throw error;
+
+      // Handle additional teams for managers
+      if (updates.additionalTeamIds !== undefined) {
+        // Delete existing additional teams
+        await supabase
+          .from('user_teams')
+          .delete()
+          .eq('user_id', userId);
+
+        // Insert new additional teams (excluding primary team)
+        if (updates.additionalTeamIds.length > 0) {
+          const teamInserts = updates.additionalTeamIds
+            .filter(teamId => teamId !== updates.teamId) // Exclude primary team
+            .map(teamId => ({
+              user_id: userId,
+              team_id: teamId,
+            }));
+
+          if (teamInserts.length > 0) {
+            const { error: teamError } = await supabase
+              .from('user_teams')
+              .insert(teamInserts);
+
+            if (teamError) {
+              console.error('Error updating additional teams:', teamError);
+              // Don't throw - user update succeeded
+            }
+          }
+        }
+      }
 
       toast.success('User updated successfully');
       await loadUsers();
@@ -210,6 +241,25 @@ export const useUsers = () => {
     }
   };
 
+  const getUserAdditionalTeams = async (userId: string): Promise<string[]> => {
+    try {
+      const { data, error } = await supabase
+        .from('user_teams')
+        .select('team_id')
+        .eq('user_id', userId);
+
+      if (error) {
+        console.error('Error loading additional teams:', error);
+        return [];
+      }
+
+      return (data || []).map(d => d.team_id);
+    } catch (error) {
+      console.error('Error loading additional teams:', error);
+      return [];
+    }
+  };
+
   return {
     users,
     loading,
@@ -217,6 +267,7 @@ export const useUsers = () => {
     updateUser,
     deleteUser,
     resetPassword,
+    getUserAdditionalTeams,
     reload: loadUsers,
   };
 };

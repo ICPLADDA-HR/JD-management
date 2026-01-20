@@ -18,6 +18,7 @@ import {
   UserX,
   Shield,
   Users as UsersIcon,
+  X,
 } from 'lucide-react';
 import type { User } from '../../types';
 import toast from 'react-hot-toast';
@@ -33,11 +34,12 @@ type UserFormData = {
   locationId: string;
   departmentId: string;
   teamId: string;
+  additionalTeamIds: string[];
 };
 
 export const UsersPage = () => {
   const { user: currentUser } = useAuth();
-  const { users, loading, createUser, updateUser, deleteUser } = useUsers();
+  const { users, loading, createUser, updateUser, deleteUser, getUserAdditionalTeams } = useUsers();
   const { locations } = useLocations();
   const { departments } = useDepartments();
   const { teams } = useTeams();
@@ -62,6 +64,7 @@ export const UsersPage = () => {
     locationId: '',
     departmentId: '',
     teamId: '',
+    additionalTeamIds: [],
   });
 
   const isAdmin = currentUser?.role === 'admin';
@@ -94,6 +97,7 @@ export const UsersPage = () => {
       locationId: '',
       departmentId: '',
       teamId: '',
+      additionalTeamIds: [],
     });
   };
 
@@ -129,8 +133,12 @@ export const UsersPage = () => {
     }
   };
 
-  const handleEdit = (user: User) => {
+  const handleEdit = async (user: User) => {
     setSelectedUser(user);
+
+    // Load additional teams for this user
+    const additionalTeams = await getUserAdditionalTeams(user.id);
+
     setFormData({
       email: user.email,
       password: '',
@@ -140,6 +148,7 @@ export const UsersPage = () => {
       locationId: user.location_id,
       departmentId: user.department_id,
       teamId: user.team_id || '',
+      additionalTeamIds: additionalTeams,
     });
     setShowEditModal(true);
   };
@@ -166,6 +175,7 @@ export const UsersPage = () => {
         locationId: formData.locationId,
         departmentId: formData.departmentId,
         teamId: formData.teamId,
+        additionalTeamIds: formData.role === 'manager' ? formData.additionalTeamIds : [],
       });
       setShowEditModal(false);
       setSelectedUser(null);
@@ -175,6 +185,33 @@ export const UsersPage = () => {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  // Get available teams for adding (exclude primary team and already selected)
+  const availableTeamsForAdd = teams.filter(
+    (team) =>
+      team.id !== formData.teamId &&
+      !formData.additionalTeamIds.includes(team.id)
+  );
+
+  // Add additional team
+  const handleAddTeam = (teamId: string) => {
+    if (teamId && !formData.additionalTeamIds.includes(teamId)) {
+      setFormData({
+        ...formData,
+        additionalTeamIds: [...formData.additionalTeamIds, teamId],
+      });
+    }
+  };
+
+  // Remove additional team
+  const handleRemoveTeam = (teamId: string) => {
+    setFormData({
+      ...formData,
+      additionalTeamIds: formData.additionalTeamIds.filter(
+        (id) => id !== teamId
+      ),
+    });
   };
 
   const handleDelete = async () => {
@@ -607,6 +644,74 @@ export const UsersPage = () => {
                   ))}
                 </Select>
               </div>
+
+              {/* Additional Teams for Manager */}
+              {formData.role === 'manager' && (
+                <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <label className="text-body-sm font-medium text-primary-600">
+                      Team ที่ดูแลเพิ่มเติม
+                    </label>
+                  </div>
+
+                  {/* List of selected additional teams */}
+                  {formData.additionalTeamIds.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {formData.additionalTeamIds.map((teamId) => {
+                        const team = teams.find((t) => t.id === teamId);
+                        const dept = departments.find((d) => d.id === team?.department_id);
+                        return (
+                          <span
+                            key={teamId}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-100 text-blue-700 rounded-full text-caption"
+                          >
+                            {team?.name || 'Unknown'} {dept && <span className="text-blue-500">({dept.name})</span>}
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveTeam(teamId)}
+                              className="hover:bg-blue-200 rounded-full p-0.5"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Add team selector */}
+                  {availableTeamsForAdd.length > 0 && (
+                    <div className="flex gap-2">
+                      <Select
+                        value=""
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            handleAddTeam(e.target.value);
+                          }
+                        }}
+                        className="flex-1"
+                      >
+                        <option value="">เลือก Team เพิ่ม...</option>
+                        {availableTeamsForAdd.map((team) => {
+                          const dept = departments.find((d) => d.id === team.department_id);
+                          return (
+                            <option key={team.id} value={team.id}>
+                              {team.name} ({dept?.name || 'N/A'})
+                            </option>
+                          );
+                        })}
+                      </Select>
+                    </div>
+                  )}
+
+                  {availableTeamsForAdd.length === 0 &&
+                    formData.additionalTeamIds.length === teams.length - 1 && (
+                      <p className="text-caption text-primary-400">
+                        เลือกครบทุก Team แล้ว
+                      </p>
+                    )}
+                </div>
+              )}
             </div>
             <div className="p-6 border-t border-primary-200 flex justify-end gap-3">
               <Button
