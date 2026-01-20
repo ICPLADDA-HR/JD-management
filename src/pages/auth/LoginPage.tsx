@@ -40,7 +40,7 @@ export const LoginPage = () => {
         provider: 'azure',
         options: {
           scopes: 'email',
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${window.location.origin}/auth/callback`,
         },
       });
 
