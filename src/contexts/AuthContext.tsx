@@ -51,21 +51,50 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const fetchUserProfile = async (userId: string) => {
     try {
+      // Try to get user profile
       const { data, error } = await supabase
         .from('users')
         .select('id, email, full_name, role')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error && error.code !== 'PGRST116') {
+        // Only throw if it's not a "no rows" error
+        throw error;
+      }
 
       if (data) {
+        // User profile exists
         setUser({
           id: data.id,
           email: data.email,
           full_name: data.full_name,
           role: data.role as 'admin' | 'manager' | 'viewer',
         });
+      } else {
+        // User profile doesn't exist - create it
+        const { data: authUser } = await supabase.auth.getUser();
+
+        if (authUser.user) {
+          const newUser = {
+            id: authUser.user.id,
+            email: authUser.user.email || '',
+            full_name: authUser.user.user_metadata?.full_name || authUser.user.email?.split('@')[0] || 'User',
+            role: 'viewer' as const,
+          };
+
+          const { error: insertError } = await supabase
+            .from('users')
+            .insert([newUser]);
+
+          if (insertError) {
+            console.error('Error creating user profile:', insertError);
+            throw insertError;
+          }
+
+          // Set the newly created user
+          setUser(newUser);
+        }
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
