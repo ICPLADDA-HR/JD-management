@@ -305,6 +305,9 @@ export const UsersPage = () => {
                   Role
                 </th>
                 <th className="px-6 py-4 text-left text-caption font-semibold text-primary-600">
+                  Job Grade
+                </th>
+                <th className="px-6 py-4 text-left text-caption font-semibold text-primary-600">
                   Organization
                 </th>
                 <th className="px-6 py-4 text-left text-caption font-semibold text-primary-600">
@@ -327,6 +330,22 @@ export const UsersPage = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4">{getRoleBadge(user.role)}</td>
+                  <td className="px-6 py-4">
+                    <div className="text-body-sm text-primary-600">
+                      {user.job_grade ? (
+                        (() => {
+                          // Find full job grade name from jobGrades array
+                          const jobGrade = jobGrades.find((jg) => {
+                            const gradeValue = jg.name.match(/JG (\d+\.?\d*)/)?.[1] || '';
+                            return gradeValue === user.job_grade;
+                          });
+                          return jobGrade ? jobGrade.name : user.job_grade;
+                        })()
+                      ) : (
+                        <span className="text-primary-400">-</span>
+                      )}
+                    </div>
+                  </td>
                   <td className="px-6 py-4">
                     <div className="text-body-sm text-primary-500">
                       <p>{user.team?.name || 'N/A'}</p>
