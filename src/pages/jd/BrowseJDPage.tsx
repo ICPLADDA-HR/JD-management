@@ -20,6 +20,7 @@ import {
   Calendar,
   MapPin,
   Building2,
+  User,
 } from 'lucide-react';
 import type { JobDescriptionFilters, JDStatus, JobBand } from '../../types';
 
@@ -325,6 +326,9 @@ export const BrowseJDPage = () => {
                   <th className="px-6 py-4 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
                     Updated
                   </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
+                    Updated By
+                  </th>
                   <th className="px-6 py-4 text-right text-xs font-medium text-primary-500 uppercase tracking-wider">
                     Actions
                   </th>
@@ -358,6 +362,12 @@ export const BrowseJDPage = () => {
                       <div className="flex items-center text-sm text-primary-600">
                         <Calendar className="w-4 h-4 mr-2" />
                         {formatDate(jd.updated_at)}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center text-sm text-primary-600">
+                        <User className="w-4 h-4 mr-2" />
+                        {(jd as any).updated_by_user?.full_name || (jd as any).created_by_user?.full_name || 'Unknown'}
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
