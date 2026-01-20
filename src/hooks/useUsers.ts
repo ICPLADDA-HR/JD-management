@@ -17,15 +17,66 @@ export const useUsers = () => {
       const { data, error } = await supabase
         .from('users')
         .select(`
-          *,
+          id,
+          email,
+          full_name,
+          role,
+          job_grade,
+          team_id,
+          location_id,
+          department_id,
+          is_active,
+          created_at,
+          updated_at,
           location:locations(id, name),
           department:departments(id, name),
           team:teams(id, name)
         `)
         .order('full_name');
 
-      if (error) throw error;
-      setUsers(data || []);
+      if (error) {
+        console.error('Error loading users:', error);
+        // If job_grade column doesn't exist, try without it
+        if (error.message.includes('job_grade')) {
+          const { data: fallbackData, error: fallbackError } = await supabase
+            .from('users')
+            .select(`
+              id,
+              email,
+              full_name,
+              role,
+              team_id,
+              location_id,
+              department_id,
+              is_active,
+              created_at,
+              updated_at,
+              location:locations(id, name),
+              department:departments(id, name),
+              team:teams(id, name)
+            `)
+            .order('full_name');
+
+          if (fallbackError) throw fallbackError;
+          // Add job_grade: null to all users
+          setUsers((fallbackData || []).map(user => ({
+            ...user,
+            job_grade: null,
+            location: Array.isArray(user.location) && user.location.length > 0 ? user.location[0] : undefined,
+            department: Array.isArray(user.department) && user.department.length > 0 ? user.department[0] : undefined,
+            team: Array.isArray(user.team) && user.team.length > 0 ? user.team[0] : undefined,
+          })) as User[]);
+          toast.error('Please run SQL migration to add job_grade column');
+          return;
+        }
+        throw error;
+      }
+      setUsers((data || []).map(user => ({
+        ...user,
+        location: Array.isArray(user.location) && user.location.length > 0 ? user.location[0] : undefined,
+        department: Array.isArray(user.department) && user.department.length > 0 ? user.department[0] : undefined,
+        team: Array.isArray(user.team) && user.team.length > 0 ? user.team[0] : undefined,
+      })) as User[]);
     } catch (error: any) {
       console.error('Error loading users:', error);
       toast.error('Failed to load users');

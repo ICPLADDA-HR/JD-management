@@ -55,10 +55,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const fetchUserProfile = async (userId: string) => {
     try {
-      // Try to get user profile
-      const { data, error } = await supabase
+      // Try to get user profile WITHOUT job_grade first (for backwards compatibility)
+      let { data, error } = await supabase
         .from('users')
-        .select('id, email, full_name, role, job_grade, team_id')
+        .select('id, email, full_name, role, team_id')
         .eq('id', userId)
         .maybeSingle();
 
@@ -68,13 +68,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
 
       if (data) {
-        // User profile exists
+        // User profile exists - set user with job_grade as null for now
         setUser({
           id: data.id,
           email: data.email,
           full_name: data.full_name,
           role: data.role as 'admin' | 'manager' | 'viewer',
-          job_grade: data.job_grade as UserJobGrade | null,
+          job_grade: null, // Will be null until migration is run
           team_id: data.team_id,
         });
       } else {
