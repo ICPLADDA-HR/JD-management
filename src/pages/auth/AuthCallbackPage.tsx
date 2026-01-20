@@ -8,16 +8,31 @@ export const AuthCallbackPage = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let handled = false; // Prevent multiple executions
+
     const handleAuthCallback = async () => {
+      if (handled) return;
+      handled = true;
+
       try {
+        // Wait a bit for Supabase to process the OAuth callback
+        await new Promise(resolve => setTimeout(resolve, 500));
+
         // Check if Supabase has already handled the OAuth callback
         const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
 
-        if (sessionError) throw sessionError;
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          throw sessionError;
+        }
 
         if (sessionData.session) {
           // Session already exists (Supabase handled it automatically)
+          console.log('Session found, redirecting to dashboard');
           toast.success('เข้าสู่ระบบสำเร็จ!');
+
+          // Small delay to ensure AuthContext updates
+          await new Promise(resolve => setTimeout(resolve, 500));
           navigate('/dashboard', { replace: true });
           return;
         }
@@ -28,6 +43,7 @@ export const AuthCallbackPage = () => {
         const refreshToken = hashParams.get('refresh_token');
 
         if (accessToken) {
+          console.log('Setting session from tokens');
           // Set the session with the tokens from Microsoft
           const { data, error } = await supabase.auth.setSession({
             access_token: accessToken,
@@ -38,6 +54,9 @@ export const AuthCallbackPage = () => {
 
           if (data.session) {
             toast.success('เข้าสู่ระบบสำเร็จ!');
+
+            // Small delay to ensure AuthContext updates
+            await new Promise(resolve => setTimeout(resolve, 500));
             navigate('/dashboard', { replace: true });
             return;
           }
@@ -49,6 +68,9 @@ export const AuthCallbackPage = () => {
         console.error('Auth callback error:', error);
         setError(error.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
         toast.error(error.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
+
+        // Clear any broken sessions
+        await supabase.auth.signOut();
 
         // Redirect to login after 2 seconds
         setTimeout(() => {

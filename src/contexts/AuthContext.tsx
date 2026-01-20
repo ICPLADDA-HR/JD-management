@@ -64,7 +64,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       if (error && error.code !== 'PGRST116') {
         // Only throw if it's not a "no rows" error
-        throw error;
+        console.error('Error loading user profile:', error);
+        // Sign out on profile fetch error to prevent infinite loops
+        await supabase.auth.signOut();
+        setUser(null);
+        setLoading(false);
+        return;
       }
 
       if (data) {
@@ -97,7 +102,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
           if (insertError) {
             console.error('Error creating user profile:', insertError);
-            throw insertError;
+            // Sign out on insert error
+            await supabase.auth.signOut();
+            setUser(null);
+            setLoading(false);
+            return;
           }
 
           // Set the newly created user
@@ -106,6 +115,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
+      // Sign out on any unexpected error
+      await supabase.auth.signOut();
+      setUser(null);
     } finally {
       setLoading(false);
     }

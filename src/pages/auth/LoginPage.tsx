@@ -12,6 +12,25 @@ export const LoginPage = () => {
   const { signIn, user } = useAuth();
   const navigate = useNavigate();
 
+  // Clear any stale sessions on mount
+  useEffect(() => {
+    const clearStaleSession = async () => {
+      try {
+        // Check if there's a broken session
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session && !user) {
+          // If there's a session but no user profile, clear it
+          console.log('Clearing stale session');
+          await supabase.auth.signOut();
+        }
+      } catch (error) {
+        console.error('Error checking session:', error);
+      }
+    };
+
+    clearStaleSession();
+  }, [user]);
+
   // Redirect to dashboard if already logged in
   useEffect(() => {
     if (user) {
