@@ -44,9 +44,9 @@ export const jobDescriptionsAPI = {
           query = query.eq('department_id', filters.departmentId);
         }
 
-        // Location filter
-        if (filters.locationId) {
-          query = query.eq('location_id', filters.locationId);
+        // Team filter
+        if (filters.teamId) {
+          query = query.eq('team_id', filters.teamId);
         }
 
         // Job Band filter

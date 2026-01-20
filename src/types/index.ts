@@ -312,7 +312,7 @@ export interface JobDescriptionFilters {
   search?: string;
   status?: JDStatus;
   departmentId?: string;
-  locationId?: string;
+  teamId?: string;
   jobBand?: JobBand;
   jobGrade?: JobGrade;
 }

@@ -1,8 +1,8 @@
 ﻿import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useJobDescriptions } from '../../hooks/useJobDescriptions';
-import { useLocations } from '../../hooks/useLocations';
 import { useDepartments } from '../../hooks/useDepartments';
+import { useTeams } from '../../hooks/useTeams';
 import { useJobBands } from '../../hooks/useJobBands';
 import { useJobGrades } from '../../hooks/useJobGrades';
 import { useAuth } from '../../contexts/AuthContext';
@@ -18,7 +18,7 @@ import {
   Trash2,
   FileText,
   Calendar,
-  MapPin,
+  Users,
   Building2,
   User,
   GitCompare,
@@ -35,8 +35,8 @@ export const BrowseJDPage = () => {
     deleteJobDescription, 
     publishJobDescription 
   } = useJobDescriptions();
-  const { locations } = useLocations();
   const { departments } = useDepartments();
+  const { teams } = useTeams();
   const { jobBands } = useJobBands();
   const { jobGrades } = useJobGrades();
 
@@ -121,7 +121,7 @@ export const BrowseJDPage = () => {
   useEffect(() => {
     fetchJobDescriptions(filters);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters.search, filters.status, filters.departmentId, filters.locationId, filters.jobBand, filters.jobGrade]);
+  }, [filters.search, filters.status, filters.departmentId, filters.teamId, filters.jobBand, filters.jobGrade]);
 
   const handleSearch = (search: string) => {
     setFilters(prev => ({ ...prev, search: search || undefined }));
@@ -185,13 +185,13 @@ export const BrowseJDPage = () => {
     });
   };
 
-  const getLocationName = (jd: any) => {
+  const getTeamName = (jd: any) => {
     // Try to get from relation first
-    if (jd.location?.name) {
-      return jd.location.name;
+    if (jd.team?.name) {
+      return jd.team.name;
     }
-    // Fallback to lookup in locations array
-    return locations.find(loc => loc.id === jd.location_id)?.name || 'Unknown';
+    // Fallback to lookup in teams array
+    return teams.find(t => t.id === jd.team_id)?.name || 'Unknown';
   };
 
   const getDepartmentName = (jd: any) => {
@@ -286,14 +286,14 @@ export const BrowseJDPage = () => {
               </Select>
 
               <Select
-                label="Location"
-                value={filters.locationId || ''}
-                onChange={(e) => handleFilterChange('locationId', e.target.value)}
+                label="Team"
+                value={filters.teamId || ''}
+                onChange={(e) => handleFilterChange('teamId', e.target.value)}
               >
-                <option value="">All Locations</option>
-                {locations.map((loc) => (
-                  <option key={loc.id} value={loc.id}>
-                    {loc.name}
+                <option value="">All Teams</option>
+                {teams.map((team) => (
+                  <option key={team.id} value={team.id}>
+                    {team.name}
                   </option>
                 ))}
               </Select>
@@ -368,7 +368,7 @@ export const BrowseJDPage = () => {
                     Department
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
-                    Location
+                    Team
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
                     Updated
@@ -401,8 +401,8 @@ export const BrowseJDPage = () => {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center text-sm text-primary-600">
-                        <MapPin className="w-4 h-4 mr-2" />
-                        {getLocationName(jd)}
+                        <Users className="w-4 h-4 mr-2" />
+                        {getTeamName(jd)}
                       </div>
                     </td>
                     <td className="px-6 py-4">
