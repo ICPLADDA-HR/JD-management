@@ -91,13 +91,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const profileStartTime = Date.now();
 
     try {
-      // Try to get user profile WITHOUT job_grade first (for backwards compatibility)
+      // Try to get user profile with timeout
       console.log('[Auth Debug] 8. Querying users table...');
-      let { data, error } = await supabase
+
+      // Create a timeout promise
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Query timeout after 8 seconds')), 8000);
+      });
+
+      // Race between query and timeout
+      const queryPromise = supabase
         .from('users')
         .select('id, email, full_name, role, team_id')
         .eq('id', userId)
         .maybeSingle();
+
+      const result = await Promise.race([queryPromise, timeoutPromise]);
+      const { data, error } = result as { data: any; error: any };
 
       const elapsed = Date.now() - profileStartTime;
       console.log(`[Auth Debug] 9. Users query returned after ${elapsed}ms`);
