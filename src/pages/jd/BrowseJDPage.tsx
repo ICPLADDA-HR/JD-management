@@ -402,25 +402,40 @@ export const BrowseJDPage = () => {
 
                 {/* Dropdown */}
                 {showGradeDropdown && filters.jobBand && (
-                  <div className="absolute z-20 w-full mt-1 bg-white border border-primary-200 rounded-lg shadow-lg max-h-60 overflow-auto">
-                    {getAvailableGrades().map((grade) => {
-                      const isSelected = filters.jobGrades?.includes(grade.name) || false;
-                      return (
-                        <button
-                          key={grade.id}
-                          type="button"
-                          onClick={() => handleJobGradeToggle(grade.name)}
-                          className={`w-full px-3 py-2 text-left text-sm hover:bg-primary-50 flex items-center justify-between ${isSelected ? 'bg-accent-50 text-accent-700' : 'text-primary-700'
-                            }`}
-                        >
-                          <span>{grade.name}</span>
-                          {isSelected && <Check className="w-4 h-4 text-accent-600" />}
-                        </button>
-                      );
-                    })}
-                    {getAvailableGrades().length === 0 && (
-                      <div className="px-3 py-2 text-sm text-primary-400">
-                        No grades available
+                  <div className="absolute z-20 w-full mt-1 bg-white border border-primary-200 rounded-lg shadow-lg">
+                    {/* Scrollable list with custom scrollbar */}
+                    <div
+                      className="max-h-48 overflow-y-auto"
+                      style={{
+                        scrollbarWidth: 'thin',
+                        scrollbarColor: '#94a3b8 #f1f5f9'
+                      }}
+                    >
+                      {getAvailableGrades().map((grade) => {
+                        const isSelected = filters.jobGrades?.includes(grade.name) || false;
+                        return (
+                          <button
+                            key={grade.id}
+                            type="button"
+                            onClick={() => handleJobGradeToggle(grade.name)}
+                            className={`w-full px-3 py-2.5 text-left text-sm hover:bg-primary-50 flex items-center justify-between border-b border-primary-100 last:border-b-0 ${isSelected ? 'bg-accent-50 text-accent-700' : 'text-primary-700'
+                              }`}
+                          >
+                            <span>{grade.name}</span>
+                            {isSelected && <Check className="w-4 h-4 text-accent-600" />}
+                          </button>
+                        );
+                      })}
+                      {getAvailableGrades().length === 0 && (
+                        <div className="px-3 py-2 text-sm text-primary-400">
+                          No grades available
+                        </div>
+                      )}
+                    </div>
+                    {/* Scroll indicator */}
+                    {getAvailableGrades().length > 4 && (
+                      <div className="px-3 py-1.5 bg-primary-50 text-xs text-primary-400 text-center border-t border-primary-100 rounded-b-lg">
+                        เลื่อนเพื่อดูเพิ่มเติม ↓
                       </div>
                     )}
                   </div>
