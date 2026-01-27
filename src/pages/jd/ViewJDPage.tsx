@@ -72,7 +72,9 @@ export const ViewJDPage = () => {
   const [showShareModal, setShowShareModal] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
 
-  const canEdit = user?.role === 'admin' || user?.role === 'manager';
+  // Admin can edit all JDs, Manager can only edit JDs in their department
+  const canEdit = user?.role === 'admin' ||
+    (user?.role === 'manager' && jd && user.department_id === jd.department_id);
 
   // Add print styles
   useEffect(() => {

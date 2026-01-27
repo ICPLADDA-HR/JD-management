@@ -10,6 +10,7 @@ interface User {
   role: 'admin' | 'manager' | 'viewer';
   job_grade: UserJobGrade | null;
   team_id: string | null;
+  department_id: string | null;
 }
 
 interface AuthContextType {
@@ -102,7 +103,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       // Race between query and timeout
       const queryPromise = supabase
         .from('users')
-        .select('id, email, full_name, role, team_id')
+        .select('id, email, full_name, role, team_id, department_id')
         .eq('id', userId)
         .maybeSingle();
 
@@ -133,6 +134,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           role: data.role as 'admin' | 'manager' | 'viewer',
           job_grade: null, // Will be null until migration is run
           team_id: data.team_id,
+          department_id: data.department_id,
         });
         console.log('[Auth Debug] 12. setUser() called, setLoading(false) will be called in finally');
       } else {
@@ -147,6 +149,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             role: 'viewer' as const,
             job_grade: null,
             team_id: null,
+            department_id: null,
           };
 
           const { error: insertError } = await supabase
