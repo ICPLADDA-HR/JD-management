@@ -403,9 +403,9 @@ export const BrowseJDPage = () => {
                 {/* Dropdown */}
                 {showGradeDropdown && filters.jobBand && (
                   <div className="absolute z-20 w-full mt-1 bg-white border border-primary-200 rounded-lg shadow-lg">
-                    {/* Scrollable list with custom scrollbar */}
+                    {/* Scrollable list - shows 2 items, scroll for more */}
                     <div
-                      className="max-h-48 overflow-y-auto"
+                      className="max-h-[88px] overflow-y-auto"
                       style={{
                         scrollbarWidth: 'thin',
                         scrollbarColor: '#94a3b8 #f1f5f9'
@@ -432,12 +432,6 @@ export const BrowseJDPage = () => {
                         </div>
                       )}
                     </div>
-                    {/* Scroll indicator */}
-                    {getAvailableGrades().length > 4 && (
-                      <div className="px-3 py-1.5 bg-primary-50 text-xs text-primary-400 text-center border-t border-primary-100 rounded-b-lg">
-                        เลื่อนเพื่อดูเพิ่มเติม ↓
-                      </div>
-                    )}
                   </div>
                 )}
               </div>
