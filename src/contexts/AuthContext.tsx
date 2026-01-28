@@ -29,20 +29,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [initialized, setInitialized] = useState(false);
+  const [isFetchingProfile, setIsFetchingProfile] = useState(false);
 
   useEffect(() => {
     console.log('[Auth Debug] 1. useEffect started');
     const startTime = Date.now();
 
-    // Timeout fallback - if loading takes more than 5 seconds, stop loading
+    // Timeout fallback - if loading takes more than 20 seconds, stop loading
     // This prevents infinite loading if Supabase connection fails
     const timeoutId = setTimeout(() => {
-      if (!initialized) {
-        console.warn('[Auth Debug] TIMEOUT after 5 seconds - forcing stop');
+      if (!initialized && !isFetchingProfile) {
+        console.warn('[Auth Debug] TIMEOUT after 20 seconds - forcing stop');
         setLoading(false);
         setInitialized(true);
       }
-    }, 5000);
+    }, 20000);
 
     // Check active sessions and sets the user
     console.log('[Auth Debug] 2. Calling getSession()...');
@@ -90,6 +91,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const fetchUserProfile = async (userId: string, retryCount = 0) => {
     console.log(`[Auth Debug] 7. fetchUserProfile started for userId: ${userId} (attempt ${retryCount + 1})`);
     const profileStartTime = Date.now();
+    setIsFetchingProfile(true);
 
     try {
       // Try to get user profile with timeout
@@ -186,6 +188,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       // await supabase.auth.signOut();
       // setUser(null);
     } finally {
+      setIsFetchingProfile(false);
       setLoading(false);
     }
   };
