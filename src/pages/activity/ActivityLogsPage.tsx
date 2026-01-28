@@ -3,6 +3,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useActivityLogs } from '../../hooks/useActivityLogs';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
+import { Button } from '../../components/ui/Button';
+import type { ActivityLog } from '../../types';
 import {
   Search,
   FileText,
@@ -11,6 +13,9 @@ import {
   Shield,
   Activity,
   Clock,
+  Eye,
+  X,
+  ArrowRight,
 } from 'lucide-react';
 
 export const ActivityLogsPage = () => {
@@ -20,8 +25,25 @@ export const ActivityLogsPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [actionFilter, setActionFilter] = useState<string>('all');
   const [entityFilter, setEntityFilter] = useState<string>('all');
+  const [selectedLog, setSelectedLog] = useState<ActivityLog | null>(null);
 
   const isAdmin = currentUser?.role === 'admin';
+
+  // Check if log has before/after comparison data
+  const hasComparisonData = (log: ActivityLog) => {
+    return log.metadata?.before && log.metadata?.after;
+  };
+
+  // Handle double click to open modal
+  const handleDoubleClick = (log: ActivityLog) => {
+    setSelectedLog(log);
+  };
+
+  // Handle view changes button click
+  const handleViewChanges = (log: ActivityLog, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedLog(log);
+  };
 
   // Filter logs
   const filteredLogs = logs.filter((log) => {
@@ -209,7 +231,8 @@ export const ActivityLogsPage = () => {
             {filteredLogs.map((log) => (
               <div
                 key={log.id}
-                className="flex items-start gap-4 p-4 bg-white/40 rounded-xl border border-primary-100 hover:bg-white/60 transition-colors"
+                onDoubleClick={() => handleDoubleClick(log)}
+                className="flex items-start gap-4 p-4 bg-white/40 rounded-xl border border-primary-100 hover:bg-white/60 transition-colors cursor-pointer"
               >
                 {/* Avatar/Icon */}
                 <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-accent-500 to-accent-600 rounded-full flex items-center justify-center text-white font-semibold text-body-sm shadow-apple">
@@ -236,14 +259,29 @@ export const ActivityLogsPage = () => {
                         </p>
                       )}
                     </div>
+
+                    {/* View Changes Button */}
+                    {(log.action === 'update' || hasComparisonData(log)) && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => handleViewChanges(log, e)}
+                        icon={<Eye className="w-4 h-4" />}
+                        className="flex-shrink-0"
+                      >
+                        ดูการแก้ไข
+                      </Button>
+                    )}
                   </div>
 
-                  {/* Metadata Details */}
-                  {log.metadata && Object.keys(log.metadata).length > 0 && (
+                  {/* Metadata Details - simplified for non-update */}
+                  {log.metadata && Object.keys(log.metadata).filter(k => k !== 'before' && k !== 'after').length > 0 && (
                     <div className="mt-3 p-3 bg-primary-50/50 rounded-lg">
                       <p className="text-caption font-medium text-primary-600 mb-2">Details:</p>
                       <div className="grid grid-cols-2 gap-2">
-                        {Object.entries(log.metadata).map(([key, value]) => (
+                        {Object.entries(log.metadata)
+                          .filter(([key]) => key !== 'before' && key !== 'after')
+                          .map(([key, value]) => (
                           <div key={key} className="text-caption text-primary-500">
                             <span className="font-medium">{key}:</span>{' '}
                             <span className="break-words">
@@ -263,6 +301,144 @@ export const ActivityLogsPage = () => {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Comparison Modal */}
+      {selectedLog && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setSelectedLog(null)}>
+          <div
+            className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-primary-200">
+              <div>
+                <h2 className="text-body-lg font-semibold text-primary-600">รายละเอียดการแก้ไข</h2>
+                <p className="text-caption text-primary-400 mt-1">{selectedLog.description}</p>
+              </div>
+              <button
+                onClick={() => setSelectedLog(null)}
+                className="p-2 hover:bg-primary-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-primary-500" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
+              {/* Basic Info */}
+              <div className="mb-6 p-4 bg-primary-50 rounded-xl">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-caption text-primary-400">ผู้ทำรายการ</p>
+                    <p className="text-body-sm font-medium text-primary-600">
+                      {selectedLog.user?.full_name || 'Unknown'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-caption text-primary-400">วันที่/เวลา</p>
+                    <p className="text-body-sm font-medium text-primary-600">
+                      {new Date(selectedLog.created_at).toLocaleString('th-TH')}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-caption text-primary-400">Action</p>
+                    <div className="mt-1">{getActionBadge(selectedLog.action)}</div>
+                  </div>
+                  <div>
+                    <p className="text-caption text-primary-400">Entity</p>
+                    <div className="mt-1">{getEntityTypeBadge(selectedLog.entity_type)}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Before/After Comparison */}
+              {hasComparisonData(selectedLog) ? (
+                <div>
+                  <h3 className="text-body font-semibold text-primary-600 mb-4">การเปรียบเทียบข้อมูล</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* Before Column */}
+                    <div className="bg-red-50 rounded-xl p-4">
+                      <h4 className="text-body-sm font-semibold text-red-600 mb-3 flex items-center gap-2">
+                        <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                        ก่อนแก้ไข
+                      </h4>
+                      <div className="space-y-3">
+                        {Object.entries(selectedLog.metadata?.before || {}).map(([key, value]) => {
+                          const afterValue = selectedLog.metadata?.after?.[key];
+                          const isChanged = JSON.stringify(value) !== JSON.stringify(afterValue);
+                          return (
+                            <div key={key} className={`text-caption ${isChanged ? 'bg-red-100 p-2 rounded-lg' : ''}`}>
+                              <span className="font-medium text-primary-600 block">{key}</span>
+                              <span className="text-primary-500 break-words">
+                                {typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value || '-')}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Arrow */}
+                    <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden md:flex">
+                      <ArrowRight className="w-6 h-6 text-primary-400" />
+                    </div>
+
+                    {/* After Column */}
+                    <div className="bg-green-50 rounded-xl p-4">
+                      <h4 className="text-body-sm font-semibold text-green-600 mb-3 flex items-center gap-2">
+                        <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                        หลังแก้ไข
+                      </h4>
+                      <div className="space-y-3">
+                        {Object.entries(selectedLog.metadata?.after || {}).map(([key, value]) => {
+                          const beforeValue = selectedLog.metadata?.before?.[key];
+                          const isChanged = JSON.stringify(value) !== JSON.stringify(beforeValue);
+                          return (
+                            <div key={key} className={`text-caption ${isChanged ? 'bg-green-100 p-2 rounded-lg' : ''}`}>
+                              <span className="font-medium text-primary-600 block">{key}</span>
+                              <span className="text-primary-500 break-words">
+                                {typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value || '-')}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                /* All Metadata for non-comparison logs */
+                <div>
+                  <h3 className="text-body font-semibold text-primary-600 mb-4">รายละเอียดทั้งหมด</h3>
+                  <div className="bg-primary-50 rounded-xl p-4">
+                    {selectedLog.metadata && Object.keys(selectedLog.metadata).length > 0 ? (
+                      <div className="space-y-3">
+                        {Object.entries(selectedLog.metadata).map(([key, value]) => (
+                          <div key={key} className="text-caption">
+                            <span className="font-medium text-primary-600 block">{key}</span>
+                            <span className="text-primary-500 break-words">
+                              {typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value || '-')}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-caption text-primary-400">ไม่มีข้อมูลเพิ่มเติม</p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-6 border-t border-primary-200 flex justify-end">
+              <Button variant="secondary" onClick={() => setSelectedLog(null)}>
+                ปิด
+              </Button>
+            </div>
           </div>
         </div>
       )}

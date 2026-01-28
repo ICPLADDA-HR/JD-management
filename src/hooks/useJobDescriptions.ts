@@ -93,6 +93,17 @@ export const useJobDescriptions = () => {
       console.log('ID:', id);
       console.log('Data:', data);
 
+      // Get current JD before update for logging
+      const currentJD = await jobDescriptionsAPI.getById(id);
+      const beforeData = currentJD ? {
+        position: currentJD.position,
+        job_band: currentJD.job_band,
+        job_grade: currentJD.job_grade,
+        job_purpose: currentJD.job_purpose,
+        direct_supervisor: currentJD.direct_supervisor,
+        status: currentJD.status,
+      } : null;
+
       const updatedJD = await jobDescriptionsAPI.update(id, data);
 
       console.log('Update successful:', updatedJD);
@@ -101,15 +112,29 @@ export const useJobDescriptions = () => {
       );
       toast.success('Job description updated successfully!');
 
-      // Log activity
+      // Log activity with before/after data
       if (data.updated_by) {
+        const afterData = {
+          position: updatedJD.position,
+          job_band: updatedJD.job_band,
+          job_grade: updatedJD.job_grade,
+          job_purpose: updatedJD.job_purpose,
+          direct_supervisor: updatedJD.direct_supervisor,
+          status: updatedJD.status,
+        };
+
         await logActivity(
           data.updated_by,
           'update',
           'job_description',
           id,
           `แก้ไข Job Description: ${updatedJD.position}`,
-          { position: updatedJD.position, changes: Object.keys(data) }
+          {
+            position: updatedJD.position,
+            changes: Object.keys(data),
+            before: beforeData,
+            after: afterData,
+          }
         );
       }
 
