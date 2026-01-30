@@ -134,11 +134,16 @@ export const BrowseJDPage = () => {
     return jobGrades.filter(g => g.job_band_id === selectedBand.id);
   };
 
-  // Apply filters when they change
+  // Apply filters when they change (include user context for role-based filtering)
   useEffect(() => {
-    fetchJobDescriptions(filters);
+    const filtersWithUserContext = {
+      ...filters,
+      userRole: user?.role,
+      userTeamId: user?.team_id,
+    };
+    fetchJobDescriptions(filtersWithUserContext);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters.search, filters.status, filters.departmentId, filters.teamId, filters.jobBand, filters.jobGrades]);
+  }, [filters.search, filters.status, filters.departmentId, filters.teamId, filters.jobBand, filters.jobGrades, user?.role, user?.team_id]);
 
   const handleSearch = (search: string) => {
     setFilters(prev => ({ ...prev, search: search || undefined }));

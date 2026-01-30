@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useActivityLogs } from '../../hooks/useActivityLogs';
 import { Input } from '../../components/ui/Input';
@@ -16,18 +16,53 @@ import {
   Eye,
   X,
   ArrowRight,
+  RefreshCw,
 } from 'lucide-react';
 
 export const ActivityLogsPage = () => {
   const { user: currentUser } = useAuth();
-  const { logs, loading } = useActivityLogs();
+  const { logs, loading, refetch } = useActivityLogs();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [actionFilter, setActionFilter] = useState<string>('all');
   const [entityFilter, setEntityFilter] = useState<string>('all');
   const [selectedLog, setSelectedLog] = useState<ActivityLog | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Auto-refresh when page becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log('Page visible - refetching logs...');
+        refetch();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [refetch]);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await refetch();
+    setIsRefreshing(false);
+  };
 
   const isAdmin = currentUser?.role === 'admin';
+  const isManager = currentUser?.role === 'manager';
+  const canViewLogs = isAdmin || isManager; // Allow manager to also view
+
+  // Debug: log auth and logs state
+  console.warn('=== ActivityLogsPage RENDER ===');
+  console.warn('currentUser:', currentUser);
+  console.warn('currentUser?.role:', currentUser?.role);
+  console.warn('isAdmin:', isAdmin);
+  console.warn('isManager:', isManager);
+  console.warn('canViewLogs:', canViewLogs);
+  console.warn('Total logs:', logs.length);
+  logs.forEach((log, i) => {
+    console.warn(`Log ${i}: action="${log.action}", hasMetadata=${!!log.metadata}, hasBefore=${!!log.metadata?.before}, hasAfter=${!!log.metadata?.after}`);
+  });
 
   // Check if log has before/after comparison data
   const hasComparisonData = (log: ActivityLog) => {
@@ -147,13 +182,17 @@ export const ActivityLogsPage = () => {
     });
   };
 
-  if (!isAdmin) {
+  if (!canViewLogs) {
+    console.warn('=== ACCESS DENIED - canViewLogs is false ===');
     return (
       <div className="text-center py-20">
         <Shield className="w-16 h-16 text-primary-300 mx-auto mb-4" />
         <h2 className="text-heading-2 font-semibold text-primary-600 mb-2">Access Denied</h2>
         <p className="text-body text-primary-400">
           You don't have permission to view activity logs.
+        </p>
+        <p className="text-caption text-primary-300 mt-2">
+          Debug: role={currentUser?.role}, canViewLogs={String(canViewLogs)}
         </p>
       </div>
     );
@@ -170,11 +209,21 @@ export const ActivityLogsPage = () => {
   return (
     <div>
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-heading-1 font-semibold text-primary-600">Activity Logs</h1>
-        <p className="text-body text-primary-400 mt-2">
-          {filteredLogs.length} {filteredLogs.length === 1 ? 'activity' : 'activities'} found
-        </p>
+      <div className="mb-8 flex items-start justify-between">
+        <div>
+          <h1 className="text-heading-1 font-semibold text-primary-600">Activity Logs</h1>
+          <p className="text-body text-primary-400 mt-2">
+            {filteredLogs.length} {filteredLogs.length === 1 ? 'activity' : 'activities'} found
+          </p>
+        </div>
+        <Button
+          variant="secondary"
+          onClick={handleRefresh}
+          loading={isRefreshing}
+          icon={<RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />}
+        >
+          รีเฟรช
+        </Button>
       </div>
 
       {/* Search and Filters */}
@@ -260,8 +309,8 @@ export const ActivityLogsPage = () => {
                       )}
                     </div>
 
-                    {/* View Changes Button */}
-                    {(log.action === 'update' || hasComparisonData(log)) && (
+                    {/* View Changes Button - show for update actions */}
+                    {log.action === 'update' && (
                       <Button
                         variant="ghost"
                         size="sm"

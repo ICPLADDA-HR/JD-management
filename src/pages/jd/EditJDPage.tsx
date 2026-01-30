@@ -650,6 +650,11 @@ export const EditJDPage = () => {
       // Combine selected predefined assets and custom assets (save asset IDs for proper linking)
       const allAssets = [...selectedAssets, ...customAssets];
 
+      // Debug: Log user info before creating jdData
+      console.log('=== EditJDPage Submit Debug ===');
+      console.log('user:', user);
+      console.log('user?.id:', user?.id);
+
       const jdData: any = {
         position,
         job_band: jobBand as JobBand,

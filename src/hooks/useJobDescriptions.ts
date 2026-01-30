@@ -14,13 +14,33 @@ export const useJobDescriptions = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch all job descriptions
+  // Fetch all job descriptions with role-based filtering
   const fetchJobDescriptions = useCallback(async (filters?: JobDescriptionFilters) => {
     setLoading(true);
     setError(null);
     try {
       const data = await jobDescriptionsAPI.getAll(filters);
-      setJobDescriptions(data);
+
+      // Apply role-based filtering
+      // Admin: see all JDs
+      // Manager/Viewer: see all Published + only Draft from their own team
+      let filteredData = data;
+
+      if (filters?.userRole && filters.userRole !== 'admin') {
+        filteredData = data.filter(jd => {
+          // Always show published JDs
+          if (jd.status === 'published') return true;
+
+          // For draft JDs, only show if from user's team
+          if (jd.status === 'draft') {
+            return jd.team_id === filters.userTeamId;
+          }
+
+          return false;
+        });
+      }
+
+      setJobDescriptions(filteredData);
     } catch (err) {
       const errorMessage = 'Failed to fetch job descriptions';
       setError(errorMessage);
@@ -113,7 +133,12 @@ export const useJobDescriptions = () => {
       toast.success('Job description updated successfully!');
 
       // Log activity with before/after data
+      console.log('=== Activity Log Check ===');
+      console.log('data.updated_by:', data.updated_by);
+      console.log('typeof data.updated_by:', typeof data.updated_by);
+
       if (data.updated_by) {
+        console.log('=== Calling logActivity ===');
         const afterData = {
           position: updatedJD.position,
           job_band: updatedJD.job_band,

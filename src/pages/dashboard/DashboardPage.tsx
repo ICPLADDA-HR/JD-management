@@ -26,7 +26,10 @@ import {
 
 export const DashboardPage = () => {
   const { user } = useAuth();
-  const { stats, loading } = useDashboardStats();
+  const { stats, loading } = useDashboardStats({
+    role: user?.role,
+    teamId: user?.team_id,
+  });
 
   if (loading) {
     return (
@@ -152,6 +155,10 @@ export const DashboardPage = () => {
           {/* Legend */}
           <div className="flex flex-wrap gap-4 mb-6">
             <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-blue-500"></div>
+              <span className="text-caption text-primary-600">Total - รวมทั้งหมด</span>
+            </div>
+            <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded bg-green-500"></div>
               <span className="text-caption text-primary-600">Published - พร้อมใช้งาน</span>
             </div>
@@ -188,7 +195,8 @@ export const DashboardPage = () => {
                       if (value === undefined || name === undefined) return ['', ''];
                       return [
                         `${value} JDs`,
-                        name === 'published' ? 'Published (พร้อมใช้งาน)' : 
+                        name === 'total' ? 'Total (รวมทั้งหมด)' :
+                        name === 'published' ? 'Published (พร้อมใช้งาน)' :
                         name === 'draft' ? 'Draft (ร่าง)' : name
                       ];
                     }}
@@ -202,10 +210,18 @@ export const DashboardPage = () => {
                     />
                   </Bar>
                   <Bar dataKey="draft" stackId="a" fill="#eab308" radius={[8, 8, 0, 0]}>
-                    <LabelList 
-                      dataKey="draft" 
-                      position="inside" 
+                    <LabelList
+                      dataKey="draft"
+                      position="inside"
                       style={{ fill: 'white', fontSize: '12px', fontWeight: 'bold' }}
+                      formatter={(value: any) => value > 0 ? value : ''}
+                    />
+                  </Bar>
+                  <Bar dataKey="total" fill="#3b82f6" radius={[8, 8, 0, 0]}>
+                    <LabelList
+                      dataKey="total"
+                      position="top"
+                      style={{ fill: '#3b82f6', fontSize: '12px', fontWeight: 'bold' }}
                       formatter={(value: any) => value > 0 ? value : ''}
                     />
                   </Bar>
@@ -234,7 +250,7 @@ export const DashboardPage = () => {
             </>
           ) : (
             <div className="h-[400px] flex items-center justify-center text-primary-400">
-              <p className="text-body-sm">No data available</p>
+              <p className="text-body-sm">ไม่มีข้อมูล</p>
             </div>
           )}
         </div>
@@ -243,11 +259,11 @@ export const DashboardPage = () => {
         <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-primary-100 p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-body-lg font-semibold text-primary-600">
-              JDs by Job Grade
+              จำนวน JD ตาม Job Grade
             </h2>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded bg-purple-500"></div>
-              <span className="text-caption text-primary-400">จำนวน JDs</span>
+              <span className="text-caption text-primary-400">จำนวน JD</span>
             </div>
           </div>
           {stats.jdsByJobGrade.length > 0 ? (
@@ -273,7 +289,7 @@ export const DashboardPage = () => {
                       borderRadius: '12px',
                       padding: '8px 12px',
                     }}
-                    formatter={(value: number | undefined) => value !== undefined ? [`${value} JDs`, 'จำนวน'] : ['', '']}
+                    formatter={(value: number | undefined) => value !== undefined ? [`${value} JD`, 'จำนวน'] : ['', '']}
                   />
                   <Bar dataKey="count" fill="#9333ea" radius={[8, 8, 0, 0]}>
                     <LabelList 
@@ -288,7 +304,7 @@ export const DashboardPage = () => {
               
               {/* Total Summary */}
               <div className="mt-4 pt-4 border-t border-primary-100 text-center">
-                <p className="text-caption text-primary-400">Total Job Grades with JDs</p>
+                <p className="text-caption text-primary-400">จำนวน Job Grade ที่มี JD</p>
                 <p className="text-heading-3 font-bold text-primary-600 mt-1">
                   {stats.jdsByJobGrade.length}
                 </p>
@@ -296,7 +312,7 @@ export const DashboardPage = () => {
             </>
           ) : (
             <div className="h-[350px] flex items-center justify-center text-primary-400">
-              <p className="text-body-sm">No data available</p>
+              <p className="text-body-sm">ไม่มีข้อมูล</p>
             </div>
           )}
         </div>

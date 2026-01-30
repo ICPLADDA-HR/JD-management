@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
+import type { UserRole } from '../types';
 
 interface DashboardStats {
   totalJDs: number;
@@ -13,9 +14,9 @@ interface DashboardStats {
   recentActivities: number;
   jdsByDepartment: Array<{ name: string; count: number }>;
   jdsByStatus: Array<{ status: string; count: number }>;
-  jdsByDepartmentAndStatus: Array<{ 
-    name: string; 
-    published: number; 
+  jdsByDepartmentAndStatus: Array<{
+    name: string;
+    published: number;
     draft: number;
     total: number;
   }>;
@@ -23,7 +24,12 @@ interface DashboardStats {
   topCompetencies: Array<{ name: string; count: number }>;
 }
 
-export const useDashboardStats = () => {
+interface UserContext {
+  role?: UserRole;
+  teamId?: string | null;
+}
+
+export const useDashboardStats = (userContext?: UserContext) => {
   const [stats, setStats] = useState<DashboardStats>({
     totalJDs: 0,
     publishedJDs: 0,
@@ -43,17 +49,34 @@ export const useDashboardStats = () => {
 
   useEffect(() => {
     fetchDashboardStats();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userContext?.role, userContext?.teamId]);
 
   const fetchDashboardStats = async () => {
     setLoading(true);
     try {
-      // Fetch JD stats
-      const { data: jds, error: jdError } = await supabase
+      // Fetch JD stats with team_id for role-based filtering
+      const { data: rawJds, error: jdError } = await supabase
         .from('job_descriptions')
-        .select('id, status, department_id, department:departments(name)');
+        .select('id, status, department_id, team_id, job_grade, department:departments(name)');
 
       if (jdError) throw jdError;
+
+      // Apply role-based filtering
+      // Admin: see all JDs
+      // Manager/Viewer: see all Published + only Draft from their own team
+      let jds = rawJds;
+      if (userContext?.role && userContext.role !== 'admin') {
+        jds = rawJds?.filter(jd => {
+          // Always show published JDs
+          if (jd.status === 'published') return true;
+          // For draft JDs, only show if from user's team
+          if (jd.status === 'draft') {
+            return jd.team_id === userContext.teamId;
+          }
+          return false;
+        }) || [];
+      }
 
       // Count JDs by status
       const totalJDs = jds?.length || 0;
@@ -100,7 +123,8 @@ export const useDashboardStats = () => {
 
       // Count JDs by Job Grade
       const jobGradeCounts = jds?.reduce((acc: Record<string, number>, jd: any) => {
-        const jobGrade = jd.job_grade || 'Unknown';
+        // job_grade is stored directly as string like 'JG 1.1 Staff'
+        const jobGrade = jd.job_grade || 'ไม่ระบุ';
         acc[jobGrade] = (acc[jobGrade] || 0) + 1;
         return acc;
       }, {});

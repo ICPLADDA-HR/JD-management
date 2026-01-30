@@ -315,4 +315,7 @@ export interface JobDescriptionFilters {
   teamId?: string;
   jobBand?: JobBand;
   jobGrades?: string[]; // Changed to array for multi-select
+  // User context for role-based filtering
+  userRole?: UserRole;
+  userTeamId?: string | null;
 }
