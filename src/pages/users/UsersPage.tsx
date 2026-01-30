@@ -9,6 +9,7 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { UserImportModal, type ImportUserData } from '../../components/users/UserImportModal';
 import {
   Plus,
   Edit2,
@@ -19,6 +20,7 @@ import {
   Shield,
   Users as UsersIcon,
   X,
+  Upload,
 } from 'lucide-react';
 import type { User } from '../../types';
 import toast from 'react-hot-toast';
@@ -38,7 +40,7 @@ type UserFormData = {
 
 export const UsersPage = () => {
   const { user: currentUser } = useAuth();
-  const { users, loading, createUser, updateUser, deleteUser, getUserAdditionalTeams } = useUsers();
+  const { users, loading, createUser, updateUser, deleteUser, getUserAdditionalTeams, bulkCreateUsers } = useUsers();
   const { locations } = useLocations();
   const { departments } = useDepartments();
   const { teams } = useTeams();
@@ -50,6 +52,7 @@ export const UsersPage = () => {
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<User | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -237,6 +240,13 @@ export const UsersPage = () => {
     }
   };
 
+  const handleImportUsers = async (usersData: ImportUserData[]) => {
+    const results = await bulkCreateUsers(usersData, currentUser?.id);
+    if (results.failed > 0) {
+      toast.error(`นำเข้าสำเร็จ ${results.success} รายการ, ล้มเหลว ${results.failed} รายการ`);
+    }
+  };
+
   const getRoleBadge = (role: string) => {
     const styles = {
       admin: 'bg-red-100 text-red-600',
@@ -288,9 +298,18 @@ export const UsersPage = () => {
             {filteredUsers.length} {filteredUsers.length === 1 ? 'user' : 'users'} found
           </p>
         </div>
-        <Button onClick={() => setShowCreateModal(true)} icon={<Plus className="w-5 h-5" />}>
-          Create User
-        </Button>
+        <div className="flex gap-3">
+          <Button
+            variant="secondary"
+            onClick={() => setShowImportModal(true)}
+            icon={<Upload className="w-5 h-5" />}
+          >
+            นำเข้าจาก Excel
+          </Button>
+          <Button onClick={() => setShowCreateModal(true)} icon={<Plus className="w-5 h-5" />}>
+            Create User
+          </Button>
+        </div>
       </div>
 
       {/* Search and Filters */}
@@ -735,6 +754,18 @@ export const UsersPage = () => {
         confirmText="Deactivate"
         danger
         loading={submitting}
+      />
+
+      {/* Import Users Modal */}
+      <UserImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImport={handleImportUsers}
+        locations={locations}
+        departments={departments}
+        teams={teams}
+        jobGrades={jobGrades}
+        existingUsers={users}
       />
     </div>
   );

@@ -280,6 +280,74 @@ export const useUsers = () => {
     }
   };
 
+  const bulkCreateUsers = async (
+    usersData: Array<{
+      email: string;
+      fullName: string;
+      role: 'admin' | 'manager' | 'viewer';
+      jobGrade: string | null;
+      locationId: string;
+      departmentId: string;
+      teamId: string;
+    }>,
+    adminUserId?: string
+  ) => {
+    try {
+      const results = { success: 0, failed: 0, errors: [] as string[] };
+
+      for (const userData of usersData) {
+        try {
+          const newUserId = crypto.randomUUID();
+          const { error: userError } = await supabase
+            .from('users')
+            .insert({
+              id: newUserId,
+              email: userData.email,
+              full_name: userData.fullName,
+              role: userData.role,
+              job_grade: userData.jobGrade,
+              location_id: userData.locationId,
+              department_id: userData.departmentId,
+              team_id: userData.teamId,
+              is_active: true,
+            });
+
+          if (userError) {
+            results.failed++;
+            results.errors.push(`${userData.email}: ${userError.message}`);
+          } else {
+            results.success++;
+
+            // Log activity
+            if (adminUserId) {
+              await logActivity(
+                adminUserId,
+                'create',
+                'user',
+                newUserId,
+                `นำเข้าผู้ใช้: ${userData.fullName} (${userData.email})`,
+                { email: userData.email, fullName: userData.fullName, role: userData.role, importMethod: 'excel' }
+              );
+            }
+          }
+        } catch (error: any) {
+          results.failed++;
+          results.errors.push(`${userData.email}: ${error.message}`);
+        }
+      }
+
+      if (results.failed > 0) {
+        console.error('Bulk import errors:', results.errors);
+      }
+
+      await loadUsers();
+      return results;
+    } catch (error: any) {
+      console.error('Error in bulk create:', error);
+      throw error;
+    }
+  };
+
   const getUserAdditionalTeams = async (userId: string): Promise<string[]> => {
     try {
       const { data, error } = await supabase
@@ -306,6 +374,7 @@ export const useUsers = () => {
     updateUser,
     deleteUser,
     resetPassword,
+    bulkCreateUsers,
     getUserAdditionalTeams,
     reload: loadUsers,
   };
