@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { supabase } from '../lib/supabase';
+import toast from 'react-hot-toast';
 
 type UserJobGrade = '1.1' | '1.2' | '2.1' | '2.2' | '3.1' | '3.2' | '5';
 
@@ -105,7 +106,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       // Race between query and timeout
       const queryPromise = supabase
         .from('users')
-        .select('id, email, full_name, role, team_id, department_id')
+        .select('id, email, full_name, role, team_id, department_id, is_active')
         .eq('id', userId)
         .maybeSingle();
 
@@ -128,6 +129,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       if (data) {
         console.log('[Auth Debug] 11. User profile found:', data.email);
+
+        // Check if user is deactivated
+        if (data.is_active === false) {
+          console.log('[Auth Debug] User is DEACTIVATED - signing out');
+          toast.error('บัญชีของคุณถูกระงับการใช้งาน กรุณาติดต่อผู้ดูแลระบบ');
+          await supabase.auth.signOut();
+          setUser(null);
+          setLoading(false);
+          return;
+        }
+
         // User profile exists - set user with job_grade as null for now
         setUser({
           id: data.id,
@@ -202,6 +214,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (error) throw error;
 
     if (data.user) {
+      // Check if user is active before allowing login
+      const { data: userData } = await supabase
+        .from('users')
+        .select('is_active')
+        .eq('id', data.user.id)
+        .maybeSingle();
+
+      if (userData && userData.is_active === false) {
+        // Sign out immediately if user is deactivated
+        await supabase.auth.signOut();
+        throw new Error('บัญชีของคุณถูกระงับการใช้งาน กรุณาติดต่อผู้ดูแลระบบ');
+      }
+
       await fetchUserProfile(data.user.id);
     }
   };

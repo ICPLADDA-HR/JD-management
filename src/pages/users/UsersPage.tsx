@@ -225,7 +225,13 @@ export const UsersPage = () => {
 
   const handleToggleStatus = async (user: User) => {
     try {
-      await updateUser(user.id, { isActive: !user.is_active }, currentUser?.id, user.full_name);
+      const newStatus = !user.is_active;
+      await updateUser(user.id, { isActive: newStatus }, currentUser?.id, user.full_name);
+      toast.success(
+        newStatus
+          ? `เปิดใช้งาน ${user.full_name} สำเร็จ`
+          : `ระงับการใช้งาน ${user.full_name} สำเร็จ - ผู้ใช้จะไม่สามารถ Login ได้`
+      );
     } catch (error: any) {
       toast.error(error.message || 'Failed to update user status');
     }
