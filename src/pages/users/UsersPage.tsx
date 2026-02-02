@@ -510,12 +510,12 @@ export const UsersPage = () => {
                   })}
                 </Select>
                 <Select
-                  label="Location"
+                  label="Types"
                   value={formData.locationId}
                   onChange={(e) => setFormData({ ...formData, locationId: e.target.value })}
                   required
                 >
-                  <option value="">Select Location</option>
+                  <option value="">Select Types</option>
                   {locations.map((loc) => (
                     <option key={loc.id} value={loc.id}>
                       {loc.name}
@@ -614,12 +614,12 @@ export const UsersPage = () => {
                   })}
                 </Select>
                 <Select
-                  label="Location"
+                  label="Types"
                   value={formData.locationId}
                   onChange={(e) => setFormData({ ...formData, locationId: e.target.value })}
                   required
                 >
-                  <option value="">Select Location</option>
+                  <option value="">Select Types</option>
                   {locations.map((loc) => (
                     <option key={loc.id} value={loc.id}>
                       {loc.name}
