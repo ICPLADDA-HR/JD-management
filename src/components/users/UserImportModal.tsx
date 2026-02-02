@@ -73,7 +73,7 @@ export const UserImportModal: React.FC<UserImportModalProps> = ({
         full_name: 'สมชาย ใจดี',
         role: 'viewer',
         job_grade: '1.1',
-        location_name: locations[0]?.name || 'Bangkok',
+        types_name: locations[0]?.name || 'Back Office',
         department_name: departments[0]?.name || 'IT',
         team_name: teams[0]?.name || 'Development',
       },
@@ -82,7 +82,7 @@ export const UserImportModal: React.FC<UserImportModalProps> = ({
         full_name: 'สมหญิง รักเรียน',
         role: 'manager',
         job_grade: '2.1',
-        location_name: locations[0]?.name || 'Bangkok',
+        types_name: locations[0]?.name || 'Back Office',
         department_name: departments[0]?.name || 'IT',
         team_name: teams[0]?.name || 'Development',
       },
@@ -91,7 +91,7 @@ export const UserImportModal: React.FC<UserImportModalProps> = ({
         full_name: 'ผู้ดูแลระบบ',
         role: 'admin',
         job_grade: '3.1',
-        location_name: locations[0]?.name || 'Bangkok',
+        types_name: locations[0]?.name || 'Back Office',
         department_name: departments[0]?.name || 'IT',
         team_name: teams[0]?.name || 'Development',
       },
@@ -107,7 +107,7 @@ export const UserImportModal: React.FC<UserImportModalProps> = ({
       { wch: 20 }, // full_name
       { wch: 10 }, // role
       { wch: 10 }, // job_grade
-      { wch: 20 }, // location_name
+      { wch: 20 }, // types_name
       { wch: 20 }, // department_name
       { wch: 20 }, // team_name
     ];
@@ -127,7 +127,7 @@ export const UserImportModal: React.FC<UserImportModalProps> = ({
         column: 'job_grade',
         valid_values: `${validJobGradeValues} (หรือเว้นว่าง)`,
       },
-      { column: 'location_name', valid_values: locations.map((l) => l.name).join(', ') || 'ไม่มีข้อมูล' },
+      { column: 'types_name', valid_values: locations.map((l) => l.name).join(', ') || 'ไม่มีข้อมูล' },
       { column: 'department_name', valid_values: departments.map((d) => d.name).join(', ') || 'ไม่มีข้อมูล' },
       { column: 'team_name', valid_values: 'ขึ้นกับ department - ดูรายละเอียดด้านล่าง' },
     ];
@@ -184,7 +184,7 @@ export const UserImportModal: React.FC<UserImportModalProps> = ({
           fullName: String(row.full_name || '').trim(),
           role: String(row.role || '').trim().toLowerCase(),
           jobGrade: String(row.job_grade || '').trim(),
-          locationName: String(row.location_name || '').trim(),
+          locationName: String(row.types_name || '').trim(),
           departmentName: String(row.department_name || '').trim(),
           teamName: String(row.team_name || '').trim(),
         };
@@ -217,14 +217,14 @@ export const UserImportModal: React.FC<UserImportModalProps> = ({
           errors.push(`Job Grade ไม่ถูกต้อง (ต้องเป็น: ${validJobGrades.filter(Boolean).join(', ')})`);
         }
 
-        // Find location
+        // Find types (location)
         const location = locations.find(
           (l) => l.name.toLowerCase() === rowData.locationName.toLowerCase()
         );
         if (!rowData.locationName) {
-          errors.push('Location จำเป็น');
+          errors.push('Types จำเป็น');
         } else if (!location) {
-          errors.push(`ไม่พบ Location: ${rowData.locationName}`);
+          errors.push(`ไม่พบ Types: ${rowData.locationName}`);
         }
 
         // Find department
