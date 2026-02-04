@@ -68,6 +68,27 @@ export const UsersPage = () => {
 
   const isAdmin = currentUser?.role === 'admin';
 
+  // Helper: extract numeric grade from full name for DB storage (e.g., "JG 2.2 Specialist" -> "2.2")
+  const extractGradeValue = (fullName: string): string | null => {
+    if (!fullName) return null;
+    const match = fullName.match(/JG\s*(\d+\.?\d*)/);
+    return match ? match[1] : fullName;
+  };
+
+  // Helper: convert numeric DB value to full job grade name for dropdown display
+  const gradeValueToFullName = (dbValue: string | null): string => {
+    if (!dbValue) return '';
+    // First try exact match (for already-full-name values)
+    const exactMatch = jobGrades.find((jg) => jg.name === dbValue);
+    if (exactMatch) return exactMatch.name;
+    // Then try numeric match
+    const numericMatch = jobGrades.find((jg) => {
+      const m = jg.name.match(/JG\s*(\d+\.?\d*)/);
+      return m && m[1] === dbValue;
+    });
+    return numericMatch?.name || '';
+  };
+
   // Filter users
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
@@ -116,7 +137,7 @@ export const UsersPage = () => {
         email: formData.email,
         fullName: formData.fullName,
         role: formData.role,
-        jobGrade: formData.jobGrade || null,
+        jobGrade: extractGradeValue(formData.jobGrade),
         locationId: formData.locationId,
         departmentId: formData.departmentId,
         teamId: formData.teamId,
@@ -140,7 +161,7 @@ export const UsersPage = () => {
       email: user.email,
       fullName: user.full_name,
       role: user.role,
-      jobGrade: user.job_grade || '',
+      jobGrade: gradeValueToFullName(user.job_grade),
       locationId: user.location_id,
       departmentId: user.department_id,
       teamId: user.team_id || '',
@@ -167,7 +188,7 @@ export const UsersPage = () => {
       await updateUser(selectedUser.id, {
         fullName: formData.fullName,
         role: formData.role,
-        jobGrade: formData.jobGrade || null,
+        jobGrade: extractGradeValue(formData.jobGrade),
         locationId: formData.locationId,
         departmentId: formData.departmentId,
         teamId: formData.teamId,
@@ -388,7 +409,7 @@ export const UsersPage = () => {
                   <td className="px-6 py-4">
                     <div className="text-body-sm text-primary-600">
                       {user.job_grade ? (
-                        user.job_grade
+                        gradeValueToFullName(user.job_grade) || user.job_grade
                       ) : (
                         <span className="text-primary-400">-</span>
                       )}

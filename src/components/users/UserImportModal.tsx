@@ -259,13 +259,18 @@ export const UserImportModal: React.FC<UserImportModalProps> = ({
           ? jobGrades.find(jg => jg.name.toLowerCase() === rowData.jobGrade.toLowerCase())
           : null;
 
+        // Extract numeric value for DB storage (e.g., "JG 2.2 Specialist" -> "2.2")
+        const gradeDbValue = matchedJobGrade
+          ? (matchedJobGrade.name.match(/JG\s*(\d+\.?\d*)/)?.[1] || matchedJobGrade.name)
+          : null;
+
         const isValid = errors.length === 0;
         const resolvedData: ImportUserData | undefined = isValid
           ? {
               email: rowData.email,
               fullName: rowData.fullName,
               role: rowData.role as 'admin' | 'manager' | 'viewer',
-              jobGrade: matchedJobGrade?.name || null,
+              jobGrade: gradeDbValue,
               locationId: location!.id,
               departmentId: department!.id,
               teamId: team!.id,
