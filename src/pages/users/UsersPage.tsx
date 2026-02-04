@@ -25,13 +25,11 @@ import {
 import type { User } from '../../types';
 import toast from 'react-hot-toast';
 
-type UserJobGrade = '1.1' | '1.2' | '2.1' | '2.2' | '3.1' | '3.2' | '5';
-
 type UserFormData = {
   email: string;
   fullName: string;
   role: 'admin' | 'manager' | 'viewer';
-  jobGrade: UserJobGrade | '';
+  jobGrade: string;
   locationId: string;
   departmentId: string;
   teamId: string;
@@ -390,14 +388,7 @@ export const UsersPage = () => {
                   <td className="px-6 py-4">
                     <div className="text-body-sm text-primary-600">
                       {user.job_grade ? (
-                        (() => {
-                          // Find full job grade name from jobGrades array
-                          const jobGrade = jobGrades.find((jg) => {
-                            const gradeValue = jg.name.match(/JG (\d+\.?\d*)/)?.[1] || '';
-                            return gradeValue === user.job_grade;
-                          });
-                          return jobGrade ? jobGrade.name : user.job_grade;
-                        })()
+                        user.job_grade
                       ) : (
                         <span className="text-primary-400">-</span>
                       )}
@@ -495,19 +486,18 @@ export const UsersPage = () => {
                 </Select>
                 <Select
                   label="Job Grade"
-                  value={formData.jobGrade}
-                  onChange={(e) => setFormData({ ...formData, jobGrade: e.target.value as any })}
+                  value={jobGrades.find((jg) => jg.name === formData.jobGrade)?.id || ''}
+                  onChange={(e) => {
+                    const selectedJg = jobGrades.find((jg) => jg.id === e.target.value);
+                    setFormData({ ...formData, jobGrade: selectedJg?.name || '' });
+                  }}
                 >
                   <option value="">Select Job Grade</option>
-                  {jobGrades.map((jg) => {
-                    // Extract numeric value from name (e.g., "JG 1.1 Staff" -> "1.1")
-                    const gradeValue = jg.name.match(/JG (\d+\.?\d*)/)?.[1] || '';
-                    return (
-                      <option key={jg.id} value={gradeValue}>
-                        {jg.name}
-                      </option>
-                    );
-                  })}
+                  {jobGrades.map((jg) => (
+                    <option key={jg.id} value={jg.id}>
+                      {jg.name}
+                    </option>
+                  ))}
                 </Select>
                 <Select
                   label="Types"
@@ -599,19 +589,18 @@ export const UsersPage = () => {
                 </Select>
                 <Select
                   label="Job Grade"
-                  value={formData.jobGrade}
-                  onChange={(e) => setFormData({ ...formData, jobGrade: e.target.value as any })}
+                  value={jobGrades.find((jg) => jg.name === formData.jobGrade)?.id || ''}
+                  onChange={(e) => {
+                    const selectedJg = jobGrades.find((jg) => jg.id === e.target.value);
+                    setFormData({ ...formData, jobGrade: selectedJg?.name || '' });
+                  }}
                 >
                   <option value="">Select Job Grade</option>
-                  {jobGrades.map((jg) => {
-                    // Extract numeric value from name (e.g., "JG 1.1 Staff" -> "1.1")
-                    const gradeValue = jg.name.match(/JG (\d+\.?\d*)/)?.[1] || '';
-                    return (
-                      <option key={jg.id} value={gradeValue}>
-                        {jg.name}
-                      </option>
-                    );
-                  })}
+                  {jobGrades.map((jg) => (
+                    <option key={jg.id} value={jg.id}>
+                      {jg.name}
+                    </option>
+                  ))}
                 </Select>
                 <Select
                   label="Types"

@@ -67,12 +67,17 @@ export const UserImportModal: React.FC<UserImportModalProps> = ({
 
   // Generate and download template
   const handleDownloadTemplate = () => {
+    // Get sample job grades for template
+    const sampleJG1 = jobGrades.find(jg => jg.name.includes('1.1'))?.name || 'JG 1.1 Staff';
+    const sampleJG2 = jobGrades.find(jg => jg.name.includes('2.1'))?.name || 'JG 2.1 Assistant Manager';
+    const sampleJG3 = jobGrades.find(jg => jg.name.includes('3.1'))?.name || 'JG 3.1 Manager';
+
     const templateData = [
       {
         email: 'somchai@example.com',
         full_name: 'สมชาย ใจดี',
         role: 'viewer',
-        job_grade: '1.1',
+        job_grade: sampleJG1,
         types_name: locations[0]?.name || 'Back Office',
         department_name: departments[0]?.name || 'IT',
         team_name: teams[0]?.name || 'Development',
@@ -81,7 +86,7 @@ export const UserImportModal: React.FC<UserImportModalProps> = ({
         email: 'somying@example.com',
         full_name: 'สมหญิง รักเรียน',
         role: 'manager',
-        job_grade: '2.1',
+        job_grade: sampleJG2,
         types_name: locations[0]?.name || 'Back Office',
         department_name: departments[0]?.name || 'IT',
         team_name: teams[0]?.name || 'Development',
@@ -90,7 +95,7 @@ export const UserImportModal: React.FC<UserImportModalProps> = ({
         email: 'admin@example.com',
         full_name: 'ผู้ดูแลระบบ',
         role: 'admin',
-        job_grade: '3.1',
+        job_grade: sampleJG3,
         types_name: locations[0]?.name || 'Back Office',
         department_name: departments[0]?.name || 'IT',
         team_name: teams[0]?.name || 'Development',
@@ -115,11 +120,8 @@ export const UserImportModal: React.FC<UserImportModalProps> = ({
     XLSX.utils.book_append_sheet(wb, ws, 'Users');
 
     // Create reference sheet with valid values
-    // Extract valid job grade values from jobGrades prop
-    const validJobGradeValues = jobGrades.map(jg => {
-      const match = jg.name.match(/JG (\d+\.?\d*)/);
-      return match ? match[1] : jg.name;
-    }).join(', ') || '1.1, 1.2, 2.1, 2.2, 3.1, 3.2, 5';
+    // Use full job grade names
+    const validJobGradeValues = jobGrades.map(jg => jg.name).join(', ') || 'JG 1.1 Staff, JG 1.2 Senior Staff, ...';
 
     const refData = [
       { column: 'role', valid_values: 'admin, manager, viewer' },
@@ -211,10 +213,10 @@ export const UserImportModal: React.FC<UserImportModalProps> = ({
           errors.push(`Role ไม่ถูกต้อง (ต้องเป็น: ${validRoles.join(', ')})`);
         }
 
-        // Validate job_grade (optional)
-        const validJobGrades = ['1.1', '1.2', '2.1', '2.2', '3.1', '3.2', '5', ''];
-        if (rowData.jobGrade && !validJobGrades.includes(rowData.jobGrade)) {
-          errors.push(`Job Grade ไม่ถูกต้อง (ต้องเป็น: ${validJobGrades.filter(Boolean).join(', ')})`);
+        // Validate job_grade (optional) - now accepts full job grade names
+        const validJobGradeNames = jobGrades.map(jg => jg.name.toLowerCase());
+        if (rowData.jobGrade && !validJobGradeNames.includes(rowData.jobGrade.toLowerCase())) {
+          errors.push(`Job Grade ไม่ถูกต้อง (ดูค่าที่ใช้ได้ใน Sheet "Valid Values")`);
         }
 
         // Find types (location)
@@ -252,13 +254,18 @@ export const UserImportModal: React.FC<UserImportModalProps> = ({
           }
         }
 
+        // Find matching job grade with correct casing
+        const matchedJobGrade = rowData.jobGrade
+          ? jobGrades.find(jg => jg.name.toLowerCase() === rowData.jobGrade.toLowerCase())
+          : null;
+
         const isValid = errors.length === 0;
         const resolvedData: ImportUserData | undefined = isValid
           ? {
               email: rowData.email,
               fullName: rowData.fullName,
               role: rowData.role as 'admin' | 'manager' | 'viewer',
-              jobGrade: rowData.jobGrade || null,
+              jobGrade: matchedJobGrade?.name || null,
               locationId: location!.id,
               departmentId: department!.id,
               teamId: team!.id,
