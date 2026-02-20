@@ -318,4 +318,5 @@ export interface JobDescriptionFilters {
   // User context for role-based filtering
   userRole?: UserRole;
   userTeamId?: string | null;
+  userAdditionalTeamIds?: string[]; // Additional teams that Manager oversees
 }

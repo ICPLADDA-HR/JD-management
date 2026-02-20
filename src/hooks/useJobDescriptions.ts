@@ -23,17 +23,26 @@ export const useJobDescriptions = () => {
 
       // Apply role-based filtering
       // Admin: see all JDs
-      // Manager/Viewer: see all Published + only Draft from their own team
+      // Manager/Viewer: see all Published + only Draft from their own team(s)
       let filteredData = data;
 
       if (filters?.userRole && filters.userRole !== 'admin') {
+        // Collect all team IDs user has access to (primary + additional)
+        const userTeamIds = new Set<string>();
+        if (filters.userTeamId) {
+          userTeamIds.add(filters.userTeamId);
+        }
+        if (filters.userAdditionalTeamIds) {
+          filters.userAdditionalTeamIds.forEach(id => userTeamIds.add(id));
+        }
+
         filteredData = data.filter(jd => {
           // Always show published JDs
           if (jd.status === 'published') return true;
 
-          // For draft JDs, only show if from user's team
+          // For draft JDs, only show if from user's team (primary or additional)
           if (jd.status === 'draft') {
-            return jd.team_id === filters.userTeamId;
+            return jd.team_id && userTeamIds.has(jd.team_id);
           }
 
           return false;

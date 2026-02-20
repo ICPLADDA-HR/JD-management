@@ -44,9 +44,12 @@ export const jobDescriptionsAPI = {
           query = query.eq('department_id', filters.departmentId);
         }
 
-        // Team filter
+        // Team filter - support multiple teams for Managers
         if (filters.teamId) {
           query = query.eq('team_id', filters.teamId);
+        } else if (filters.userAdditionalTeamIds && filters.userAdditionalTeamIds.length > 0) {
+          // If filtering by user's managed teams (primary + additional)
+          query = query.in('team_id', filters.userAdditionalTeamIds);
         }
 
         // Job Band filter

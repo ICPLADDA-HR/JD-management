@@ -6,6 +6,7 @@ import { useTeams } from '../../hooks/useTeams';
 import { useJobBands } from '../../hooks/useJobBands';
 import { useJobGrades } from '../../hooks/useJobGrades';
 import { useAuth } from '../../contexts/AuthContext';
+import { useUsers } from '../../hooks/useUsers';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
@@ -30,24 +31,37 @@ import type { JobDescriptionFilters, JDStatus, JobBand } from '../../types';
 
 export const BrowseJDPage = () => {
   const { user } = useAuth();
-  const { 
-    jobDescriptions, 
-    loading, 
-    error, 
-    fetchJobDescriptions, 
-    deleteJobDescription, 
-    publishJobDescription 
+  const {
+    jobDescriptions,
+    loading,
+    error,
+    fetchJobDescriptions,
+    deleteJobDescription,
+    publishJobDescription
   } = useJobDescriptions();
   const { departments } = useDepartments();
   const { teams } = useTeams();
   const { jobBands } = useJobBands();
   const { jobGrades } = useJobGrades();
+  const { getUserAdditionalTeams } = useUsers();
 
   const [filters, setFilters] = useState<JobDescriptionFilters>({});
   const [showFilters, setShowFilters] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [showGradeDropdown, setShowGradeDropdown] = useState(false);
   const gradeDropdownRef = useRef<HTMLDivElement>(null);
+  const [userAdditionalTeamIds, setUserAdditionalTeamIds] = useState<string[]>([]);
+
+  // Load user's additional teams on mount
+  useEffect(() => {
+    const loadAdditionalTeams = async () => {
+      if (user?.id) {
+        const additionalTeams = await getUserAdditionalTeams(user.id);
+        setUserAdditionalTeamIds(additionalTeams);
+      }
+    };
+    loadAdditionalTeams();
+  }, [user?.id, getUserAdditionalTeams]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -85,9 +99,18 @@ export const BrowseJDPage = () => {
     // Admin can edit everything
     if (user.role === 'admin') return true;
 
-    // Manager can edit their own + team members' JDs
+    // Manager can edit their own + team members' JDs (including additional teams)
     if (user.role === 'manager') {
-      return jd.created_by === user.id || (jd.team_id && jd.team_id === user.team_id);
+      // Check if JD is created by this user
+      if (jd.created_by === user.id) return true;
+
+      // Check if JD belongs to primary team
+      if (jd.team_id && jd.team_id === user.team_id) return true;
+
+      // Check if JD belongs to any additional teams
+      if (jd.team_id && userAdditionalTeamIds.includes(jd.team_id)) return true;
+
+      return false;
     }
 
     // Viewer with JG 2.2+ can edit JDs with lower JG in same team (created by Manager)
@@ -96,8 +119,9 @@ export const BrowseJDPage = () => {
 
       // Must be JG 2.2 or higher
       if (userGradeValue >= 2.2) {
-        // Must be in same team
-        const sameTeam = jd.team_id && jd.team_id === user.team_id;
+        // Must be in same team (primary or additional)
+        const userTeamIds = new Set([user.team_id, ...userAdditionalTeamIds].filter(Boolean));
+        const sameTeam = jd.team_id && userTeamIds.has(jd.team_id);
 
         // JD must be created by a Manager (check via created_by_user role)
         const createdByManager = (jd as any).created_by_user?.role === 'manager';
@@ -118,7 +142,16 @@ export const BrowseJDPage = () => {
     if (!user) return false;
     // Only Manager can publish (not Admin, not Viewer)
     if (user.role === 'manager') {
-      return jd.created_by === user.id || (jd.team_id && jd.team_id === user.team_id);
+      // Check if JD is created by this user
+      if (jd.created_by === user.id) return true;
+
+      // Check if JD belongs to primary team
+      if (jd.team_id && jd.team_id === user.team_id) return true;
+
+      // Check if JD belongs to any additional teams
+      if (jd.team_id && userAdditionalTeamIds.includes(jd.team_id)) return true;
+
+      return false;
     }
     return false;
   };
@@ -140,10 +173,11 @@ export const BrowseJDPage = () => {
       ...filters,
       userRole: user?.role,
       userTeamId: user?.team_id,
+      userAdditionalTeamIds: userAdditionalTeamIds,
     };
     fetchJobDescriptions(filtersWithUserContext);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters.search, filters.status, filters.departmentId, filters.teamId, filters.jobBand, filters.jobGrades, user?.role, user?.team_id]);
+  }, [filters.search, filters.status, filters.departmentId, filters.teamId, filters.jobBand, filters.jobGrades, user?.role, user?.team_id, userAdditionalTeamIds]);
 
   const handleSearch = (search: string) => {
     setFilters(prev => ({ ...prev, search: search || undefined }));
