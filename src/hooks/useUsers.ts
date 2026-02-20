@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import type { User } from '../types';
 import toast from 'react-hot-toast';
@@ -348,7 +348,7 @@ export const useUsers = () => {
     }
   };
 
-  const getUserAdditionalTeams = async (userId: string): Promise<string[]> => {
+  const getUserAdditionalTeams = useCallback(async (userId: string): Promise<string[]> => {
     try {
       const { data, error } = await supabase
         .from('user_teams')
@@ -365,7 +365,7 @@ export const useUsers = () => {
       console.error('Error loading additional teams:', error);
       return [];
     }
-  };
+  }, []);
 
   return {
     users,

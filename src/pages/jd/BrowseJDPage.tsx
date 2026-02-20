@@ -61,7 +61,8 @@ export const BrowseJDPage = () => {
       }
     };
     loadAdditionalTeams();
-  }, [user?.id, getUserAdditionalTeams]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
