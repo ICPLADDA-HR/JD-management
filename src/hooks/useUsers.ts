@@ -235,27 +235,33 @@ export const useUsers = () => {
 
   const deleteUser = async (userId: string, adminUserId?: string, targetUserName?: string) => {
     try {
-      // Soft delete by setting is_active to false
-      const { error } = await supabase
-        .from('users')
-        .update({ is_active: false })
-        .eq('id', userId);
-
-      if (error) throw error;
-
-      toast.success('User deactivated successfully');
-
-      // Log activity
+      // Log activity before deleting (so we still have access to the user record)
       if (adminUserId) {
         await logActivity(
           adminUserId,
           'user_delete',
           'user',
           userId,
-          `ปิดการใช้งานผู้ใช้: ${targetUserName || userId}`,
-          { deactivatedUser: targetUserName || userId }
+          `ลบผู้ใช้: ${targetUserName || userId}`,
+          { deletedUser: targetUserName || userId }
         );
       }
+
+      // Delete additional teams first (foreign key constraint)
+      await supabase
+        .from('user_teams')
+        .delete()
+        .eq('user_id', userId);
+
+      // Actually delete the user from the database
+      const { error } = await supabase
+        .from('users')
+        .delete()
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      toast.success('ลบผู้ใช้สำเร็จ');
 
       await loadUsers();
     } catch (error: any) {

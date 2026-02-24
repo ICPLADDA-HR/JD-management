@@ -759,9 +759,9 @@ export const UsersPage = () => {
         isOpen={!!deleteConfirm}
         onClose={() => setDeleteConfirm(null)}
         onConfirm={handleDelete}
-        title="Deactivate User"
-        message={`Are you sure you want to deactivate "${deleteConfirm?.full_name}"? They will no longer be able to access the system.`}
-        confirmText="Deactivate"
+        title="Delete User"
+        message={`Are you sure you want to delete "${deleteConfirm?.full_name}"? This action cannot be undone.`}
+        confirmText="Delete"
         danger
         loading={submitting}
       />
