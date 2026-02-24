@@ -22,8 +22,8 @@ export const useJobDescriptions = () => {
       const data = await jobDescriptionsAPI.getAll(filters);
 
       // Apply role-based filtering
-      // Admin: see all JDs
-      // Manager/Viewer: see all Published + only Draft from their own team(s)
+      // Admin: see all JDs (published + draft)
+      // Manager/Viewer: see ALL Published JDs + only Draft from their own team(s)
       let filteredData = data;
 
       if (filters?.userRole && filters.userRole !== 'admin') {
@@ -37,7 +37,7 @@ export const useJobDescriptions = () => {
         }
 
         filteredData = data.filter(jd => {
-          // Always show published JDs
+          // Always show ALL published JDs (everyone can see all published JDs)
           if (jd.status === 'published') return true;
 
           // For draft JDs, only show if from user's team (primary or additional)
