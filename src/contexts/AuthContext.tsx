@@ -209,12 +209,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
-      options: {
-        // Request a longer session (7 days)
-        // Note: Actual token expiry is controlled by Supabase project settings
-        // This just ensures we use the maximum available
-        data: {},
-      },
     });
 
     if (error) throw error;
