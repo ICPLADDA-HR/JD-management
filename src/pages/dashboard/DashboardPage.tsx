@@ -155,10 +155,6 @@ export const DashboardPage = () => {
           {/* Legend */}
           <div className="flex flex-wrap gap-4 mb-6">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-blue-500"></div>
-              <span className="text-caption text-primary-600">Total - รวมทั้งหมด</span>
-            </div>
-            <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded bg-green-500"></div>
               <span className="text-caption text-primary-600">Published - พร้อมใช้งาน</span>
             </div>
@@ -214,14 +210,6 @@ export const DashboardPage = () => {
                       dataKey="draft"
                       position="inside"
                       style={{ fill: 'white', fontSize: '12px', fontWeight: 'bold' }}
-                      formatter={(value: any) => value > 0 ? value : ''}
-                    />
-                  </Bar>
-                  <Bar dataKey="total" fill="#3b82f6" radius={[8, 8, 0, 0]}>
-                    <LabelList
-                      dataKey="total"
-                      position="top"
-                      style={{ fill: '#3b82f6', fontSize: '12px', fontWeight: 'bold' }}
                       formatter={(value: any) => value > 0 ? value : ''}
                     />
                   </Bar>
