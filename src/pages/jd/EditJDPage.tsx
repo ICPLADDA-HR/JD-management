@@ -1102,6 +1102,16 @@ export const EditJDPage = () => {
                 คิดวิเคราะห์ วางแผน และกำหนดแนวทางเชิงกลยุทธ์เพื่อพัฒนาองค์กรและสร้างคุณค่าในระยะยาว
                 <span className="block italic mt-1">ตัวอย่าง: วิเคราะห์ข้อมูลเชิงลึกเพื่อนำมาวางแผนกลยุทธ์การพัฒนาทีมและองค์กร</span>
               </p>
+              <div className="mb-3">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => addResponsibility('strategic')}
+                  icon={<Plus className="w-4 h-4" />}
+                >
+                  Add Task
+                </Button>
+              </div>
               <div className="space-y-2">
                 {strategicResponsibilities.map((item, index) => (
                   <div key={index} className="flex gap-2">
@@ -1120,16 +1130,6 @@ export const EditJDPage = () => {
                     />
                   </div>
                 ))}
-              </div>
-              <div className="mt-3">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => addResponsibility('strategic')}
-                  icon={<Plus className="w-4 h-4" />}
-                >
-                  Add Task
-                </Button>
               </div>
             </div>
           </div>
@@ -1158,6 +1158,16 @@ export const EditJDPage = () => {
                 ดูแล สนับสนุน และพัฒนาศักยภาพของทีมให้ทำงานอย่างมีประสิทธิภาพ
                 <span className="block italic mt-1">ตัวอย่าง: ให้คำแนะนำและ Feedback เพื่อพัฒนาทักษะการทำงานของทีม</span>
               </p>
+              <div className="mb-3">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => addResponsibility('team_management')}
+                  icon={<Plus className="w-4 h-4" />}
+                >
+                  Add Task
+                </Button>
+              </div>
               <div className="space-y-2">
                 {teamManagementResponsibilities.map((item, index) => (
                   <div key={index} className="flex gap-2">
@@ -1176,16 +1186,6 @@ export const EditJDPage = () => {
                     />
                   </div>
                 ))}
-              </div>
-              <div className="mt-3">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => addResponsibility('team_management')}
-                  icon={<Plus className="w-4 h-4" />}
-                >
-                  Add Task
-                </Button>
               </div>
             </div>
           </div>
@@ -1212,6 +1212,16 @@ export const EditJDPage = () => {
                 ดำเนินงานสนับสนุนและงานประจำของแผนกให้เป็นไปตามแผนและมาตรฐานขององค์กร
                 <span className="block italic mt-1">ตัวอย่าง: ดูแลการใช้งบประมาณและติดตามความคืบหน้าโครงการให้เสร็จตามกำหนด</span>
               </p>
+              <div className="mb-3">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => addResponsibility('general')}
+                  icon={<Plus className="w-4 h-4" />}
+                >
+                  Add Task
+                </Button>
+              </div>
               <div className="space-y-2">
                 {generalResponsibilities.map((item, index) => (
                   <div key={index} className="flex gap-2">
@@ -1230,16 +1240,6 @@ export const EditJDPage = () => {
                     />
                   </div>
                 ))}
-              </div>
-              <div className="mt-3">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => addResponsibility('general')}
-                  icon={<Plus className="w-4 h-4" />}
-                >
-                  Add Task
-                </Button>
               </div>
             </div>
           </div>
@@ -1268,6 +1268,16 @@ export const EditJDPage = () => {
                 ส่งเสริมวัฒนธรรมการทำงานที่ดีภายในทีมและองค์กร พร้อมเป็นแบบอย่างที่สะท้อนค่านิยมหลักขององค์กร
                 <span className="block italic mt-1">ตัวอย่าง: ร่วมพัฒนาและขับเคลื่อนกิจกรรมหรือแนวทางที่สร้างบรรยากาศการทำงานเชิงบวก</span>
               </p>
+              <div className="mb-3">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => addResponsibility('culture')}
+                  icon={<Plus className="w-4 h-4" />}
+                >
+                  Add Task
+                </Button>
+              </div>
               <div className="space-y-2">
                 {cultureResponsibilities.map((item, index) => (
                   <div key={index} className="flex gap-2">
@@ -1286,16 +1296,6 @@ export const EditJDPage = () => {
                     />
                   </div>
                 ))}
-              </div>
-              <div className="mt-3">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => addResponsibility('culture')}
-                  icon={<Plus className="w-4 h-4" />}
-                >
-                  Add Task
-                </Button>
               </div>
             </div>
           </div>
@@ -1324,6 +1324,16 @@ export const EditJDPage = () => {
                 มุ่งพัฒนาและปรับปรุงกระบวนการทำงานให้มีประสิทธิภาพมากขึ้น พร้อมสร้างแนวทางหรือนวัตกรรมใหม่ที่ช่วยเพิ่มคุณค่าให้กับองค์กรและตัวบุคคล
                 <span className="block italic mt-1">ตัวอย่าง: พัฒนาวิธีการทำงานใหม่เพื่อลดเวลาและเพิ่มคุณภาพของผลลัพธ์</span>
               </p>
+              <div className="mb-3">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => addResponsibility('efficiency')}
+                  icon={<Plus className="w-4 h-4" />}
+                >
+                  Add Task
+                </Button>
+              </div>
               <div className="space-y-2">
                 {efficiencyResponsibilities.map((item, index) => (
                   <div key={index} className="flex gap-2">
@@ -1342,16 +1352,6 @@ export const EditJDPage = () => {
                     />
                   </div>
                 ))}
-              </div>
-              <div className="mt-3">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => addResponsibility('efficiency')}
-                  icon={<Plus className="w-4 h-4" />}
-                >
-                  Add Task
-                </Button>
               </div>
             </div>
           </div>
@@ -1380,6 +1380,16 @@ export const EditJDPage = () => {
                 งานอื่นๆ ที่ได้รับมอบหมายเพิ่มเติมนอกเหนือจากหน้าที่หลัก
                 <span className="block italic mt-1">ตัวอย่าง: โครงการพิเศษหรืองานที่ได้รับมอบหมายตามความเหมาะสม</span>
               </p>
+              <div className="mb-3">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => addResponsibility('other')}
+                  icon={<Plus className="w-4 h-4" />}
+                >
+                  Add Task
+                </Button>
+              </div>
               <div className="space-y-2">
                 {otherResponsibilities.map((item, index) => (
                   <div key={index} className="flex gap-2">
@@ -1398,16 +1408,6 @@ export const EditJDPage = () => {
                     />
                   </div>
                 ))}
-              </div>
-              <div className="mt-3">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => addResponsibility('other')}
-                  icon={<Plus className="w-4 h-4" />}
-                >
-                  Add Task
-                </Button>
               </div>
             </div>
           </div>
@@ -1670,6 +1670,7 @@ export const EditJDPage = () => {
             </Button>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
