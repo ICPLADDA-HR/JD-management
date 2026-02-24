@@ -9,9 +9,10 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    persistSession: true,
-    storageKey: 'jd-management-auth',
+    storage: window.localStorage,
     autoRefreshToken: true,
+    persistSession: true,
     detectSessionInUrl: true,
+    storageKey: 'jd-management-auth',
   },
 });

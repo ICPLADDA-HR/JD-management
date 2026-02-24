@@ -45,12 +45,28 @@ export const BrowseJDPage = () => {
   const { jobGrades } = useJobGrades();
   const { getUserAdditionalTeams } = useUsers();
 
-  const [filters, setFilters] = useState<JobDescriptionFilters>({});
+  // Load filters from localStorage on mount
+  const [filters, setFilters] = useState<JobDescriptionFilters>(() => {
+    const savedFilters = localStorage.getItem('jd-filters');
+    if (savedFilters) {
+      try {
+        return JSON.parse(savedFilters);
+      } catch {
+        return {};
+      }
+    }
+    return {};
+  });
   const [showFilters, setShowFilters] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [showGradeDropdown, setShowGradeDropdown] = useState(false);
   const gradeDropdownRef = useRef<HTMLDivElement>(null);
   const [userAdditionalTeamIds, setUserAdditionalTeamIds] = useState<string[]>([]);
+
+  // Save filters to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('jd-filters', JSON.stringify(filters));
+  }, [filters]);
 
   // Load user's additional teams on mount
   useEffect(() => {
