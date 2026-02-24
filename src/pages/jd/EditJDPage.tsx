@@ -1083,7 +1083,7 @@ export const EditJDPage = () => {
           {/* Strategic */}
           <div className="space-y-6 pt-6">
             <div>
-              <div className="mb-3 flex items-center justify-between">
+              <div className="mb-3 flex items-center">
                 <div className="flex items-center gap-3">
                   <label className="text-base font-semibold text-indigo-600">Strategic (เชิงกลยุทธ์)</label>
                   <div className="flex items-center gap-1">
@@ -1099,14 +1099,6 @@ export const EditJDPage = () => {
                     <span className="text-sm text-primary-500">%</span>
                   </div>
                 </div>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => addResponsibility('strategic')}
-                  icon={<Plus className="w-4 h-4" />}
-                >
-                  Add Item
-                </Button>
               </div>
               <p className="mb-2 text-sm text-primary-500">
                 คิดวิเคราะห์ วางแผน และกำหนดแนวทางเชิงกลยุทธ์เพื่อพัฒนาองค์กรและสร้างคุณค่าในระยะยาว
@@ -1131,13 +1123,22 @@ export const EditJDPage = () => {
                   </div>
                 ))}
               </div>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => addResponsibility('strategic')}
+                icon={<Plus className="w-4 h-4" />}
+                className="mt-2"
+              >
+                Add Item
+              </Button>
             </div>
           </div>
 
           {/* Team Management */}
           <div className="space-y-6 border-t border-primary-200 pt-6">
             <div>
-              <div className="mb-3 flex items-center justify-between">
+              <div className="mb-3 flex items-center">
                 <div className="flex items-center gap-3">
                   <label className="text-base font-semibold text-cyan-600">
                     Team Management & Development (การบริหารทีม และการพัฒนาบุคลากร)
@@ -1155,14 +1156,6 @@ export const EditJDPage = () => {
                     <span className="text-sm text-primary-500">%</span>
                   </div>
                 </div>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => addResponsibility('team_management')}
-                  icon={<Plus className="w-4 h-4" />}
-                >
-                  Add Item
-                </Button>
               </div>
               <p className="mb-2 text-sm text-primary-500">
                 ดูแล สนับสนุน และพัฒนาศักยภาพของทีมให้ทำงานอย่างมีประสิทธิภาพ
@@ -1187,13 +1180,22 @@ export const EditJDPage = () => {
                   </div>
                 ))}
               </div>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => addResponsibility('team_management')}
+                icon={<Plus className="w-4 h-4" />}
+                className="mt-2"
+              >
+                Add Item
+              </Button>
             </div>
           </div>
 
           {/* General Tasks */}
           <div className="space-y-6 border-t border-primary-200 pt-6">
             <div>
-              <div className="mb-3 flex items-center justify-between">
+              <div className="mb-3 flex items-center">
                 <div className="flex items-center gap-3">
                   <label className="text-base font-semibold text-amber-600">General Tasks (งานทั่วไป)</label>
                   <div className="flex items-center gap-1">
@@ -1209,14 +1211,6 @@ export const EditJDPage = () => {
                     <span className="text-sm text-primary-500">%</span>
                   </div>
                 </div>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => addResponsibility('general')}
-                  icon={<Plus className="w-4 h-4" />}
-                >
-                  Add Item
-                </Button>
               </div>
               <p className="mb-2 text-sm text-primary-500">
                 ดำเนินงานสนับสนุนและงานประจำของแผนกให้เป็นไปตามแผนและมาตรฐานขององค์กร
@@ -1241,13 +1235,22 @@ export const EditJDPage = () => {
                   </div>
                 ))}
               </div>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => addResponsibility('general')}
+                icon={<Plus className="w-4 h-4" />}
+                className="mt-2"
+              >
+                Add Item
+              </Button>
             </div>
           </div>
 
           {/* Culture Building */}
           <div className="space-y-6 border-t border-primary-200 pt-6">
             <div>
-              <div className="mb-3 flex items-center justify-between">
+              <div className="mb-3 flex items-center">
                 <div className="flex items-center gap-3">
                   <label className="text-base font-semibold text-rose-600">
                     Culture Building (การสร้างและส่งเสริมวัฒนธรรมองค์กร)
@@ -1265,14 +1268,6 @@ export const EditJDPage = () => {
                     <span className="text-sm text-primary-500">%</span>
                   </div>
                 </div>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => addResponsibility('culture')}
-                  icon={<Plus className="w-4 h-4" />}
-                >
-                  Add Item
-                </Button>
               </div>
               <p className="mb-2 text-sm text-primary-500">
                 ส่งเสริมวัฒนธรรมการทำงานที่ดีภายในทีมและองค์กร พร้อมเป็นแบบอย่างที่สะท้อนค่านิยมหลักขององค์กร
@@ -1297,37 +1292,37 @@ export const EditJDPage = () => {
                   </div>
                 ))}
               </div>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => addResponsibility('culture')}
+                icon={<Plus className="w-4 h-4" />}
+                className="mt-2"
+              >
+                Add Item
+              </Button>
             </div>
           </div>
 
           {/* Improve Efficiency */}
           <div className="space-y-6 border-t border-primary-200 pt-6">
             <div>
-              <div className="mb-3 flex items-center justify-between">
+              <div className="mb-3 flex items-center">
                 <label className="text-base font-semibold text-emerald-600">
                   Improve Efficiency & Add Value (การเพิ่มประสิทธิภาพและสร้างคุณค่าใหม่ๆ)
-                  </label>
-                  <div className="flex items-center gap-1">
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={responsibilityPercentages.efficiency || ''}
-                      onChange={(e) => updatePercentage('efficiency', parseInt(e.target.value))}
-                      className="w-16 px-2 py-1 text-center border border-emerald-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                      placeholder="0"
-                    />
-                    <span className="text-sm text-primary-500">%</span>
-                  </div>
+                </label>
+                <div className="flex items-center gap-1 ml-3">
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={responsibilityPercentages.efficiency || ''}
+                    onChange={(e) => updatePercentage('efficiency', parseInt(e.target.value))}
+                    className="w-16 px-2 py-1 text-center border border-emerald-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    placeholder="0"
+                  />
+                  <span className="text-sm text-primary-500">%</span>
                 </div>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => addResponsibility('efficiency')}
-                  icon={<Plus className="w-4 h-4" />}
-                >
-                  Add Item
-                </Button>
               </div>
               <p className="mb-2 text-sm text-primary-500">
                 มุ่งพัฒนาและปรับปรุงกระบวนการทำงานให้มีประสิทธิภาพมากขึ้น พร้อมสร้างแนวทางหรือนวัตกรรมใหม่ที่ช่วยเพิ่มคุณค่าให้กับองค์กรและตัวบุคคล
@@ -1352,13 +1347,22 @@ export const EditJDPage = () => {
                   </div>
                 ))}
               </div>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => addResponsibility('efficiency')}
+                icon={<Plus className="w-4 h-4" />}
+                className="mt-2"
+              >
+                Add Item
+              </Button>
             </div>
           </div>
 
           {/* Other Assigned Works */}
           <div className="space-y-6 border-t border-primary-200 pt-6">
             <div>
-              <div className="mb-3 flex items-center justify-between">
+              <div className="mb-3 flex items-center">
                 <div className="flex items-center gap-3">
                   <label className="text-base font-semibold text-violet-600">
                     Other Assigned Works (หน้าที่ความรับผิดชอบด้านอื่นๆ)
@@ -1376,14 +1380,6 @@ export const EditJDPage = () => {
                     <span className="text-sm text-primary-500">%</span>
                   </div>
                 </div>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => addResponsibility('other')}
-                  icon={<Plus className="w-4 h-4" />}
-                >
-                  Add Item
-                </Button>
               </div>
               <p className="mb-2 text-sm text-primary-500">
                 งานอื่นๆ ที่ได้รับมอบหมายเพิ่มเติมนอกเหนือจากหน้าที่หลัก
@@ -1408,6 +1404,15 @@ export const EditJDPage = () => {
                   </div>
                 ))}
               </div>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => addResponsibility('other')}
+                icon={<Plus className="w-4 h-4" />}
+                className="mt-2"
+              >
+                Add Item
+              </Button>
             </div>
           </div>
 
