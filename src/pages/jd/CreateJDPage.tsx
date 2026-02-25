@@ -57,6 +57,7 @@ export const CreateJDPage = () => {
   const { jobGrades } = useJobGrades();
   const { assets } = useCompanyAssets();
 
+  const DRAFT_KEY = 'jd-create-draft';
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState<'draft' | 'published'>('draft');
 
@@ -121,6 +122,63 @@ export const CreateJDPage = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [competencies.length]);
+
+  // Load draft from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(DRAFT_KEY);
+      if (saved) {
+        const draft = JSON.parse(saved);
+        if (draft.position) setPosition(draft.position);
+        if (draft.directSupervisor) setDirectSupervisor(draft.directSupervisor);
+        if (draft.jobBand) setJobBand(draft.jobBand);
+        if (draft.jobGrade) setJobGrade(draft.jobGrade);
+        if (draft.locationId) setLocationId(draft.locationId);
+        if (draft.departmentId) setDepartmentId(draft.departmentId);
+        if (draft.teamId) setTeamId(draft.teamId);
+        if (draft.jobPurpose) setJobPurpose(draft.jobPurpose);
+        if (draft.status) setStatus(draft.status);
+        if (draft.selectedAssets) setSelectedAssets(draft.selectedAssets);
+        if (draft.strategicResponsibilities) setStrategicResponsibilities(draft.strategicResponsibilities);
+        if (draft.teamManagementResponsibilities) setTeamManagementResponsibilities(draft.teamManagementResponsibilities);
+        if (draft.generalResponsibilities) setGeneralResponsibilities(draft.generalResponsibilities);
+        if (draft.cultureResponsibilities) setCultureResponsibilities(draft.cultureResponsibilities);
+        if (draft.efficiencyResponsibilities) setEfficiencyResponsibilities(draft.efficiencyResponsibilities);
+        if (draft.otherResponsibilities) setOtherResponsibilities(draft.otherResponsibilities);
+        if (draft.responsibilityPercentages) setResponsibilityPercentages(draft.responsibilityPercentages);
+        if (draft.externalRisks) setExternalRisks(draft.externalRisks);
+        if (draft.internalRisks) setInternalRisks(draft.internalRisks);
+        if (draft.competencyScores) setCompetencyScores(draft.competencyScores);
+        toast.success('โหลดข้อมูลร่างที่บันทึกไว้แล้ว');
+      }
+    } catch (e) {
+      console.error('Error loading draft:', e);
+    }
+  }, []);
+
+  const saveDraft = () => {
+    try {
+      const draft = {
+        position, directSupervisor, jobBand, jobGrade,
+        locationId, departmentId, teamId, jobPurpose, status,
+        selectedAssets,
+        strategicResponsibilities, teamManagementResponsibilities,
+        generalResponsibilities, cultureResponsibilities,
+        efficiencyResponsibilities, otherResponsibilities,
+        responsibilityPercentages,
+        externalRisks, internalRisks, competencyScores,
+      };
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+      toast.success('บันทึกร่างสำเร็จ');
+    } catch (e) {
+      console.error('Error saving draft:', e);
+      toast.error('ไม่สามารถบันทึกร่างได้');
+    }
+  };
+
+  const clearDraft = () => {
+    localStorage.removeItem(DRAFT_KEY);
+  };
 
   // Get filtered teams based on department
   const filteredTeams = teams.filter((t) => t.department_id === departmentId);
@@ -379,6 +437,7 @@ export const CreateJDPage = () => {
       }
 
       const createdJD = await createJobDescription(jdData);
+      clearDraft();
       navigate(`/jd/${createdJD.id}`);
     } catch (error) {
       console.error(error);
@@ -1088,6 +1147,13 @@ export const CreateJDPage = () => {
           <div className="flex gap-2">
             <Button variant="secondary" onClick={handleCancel}>
               Cancel
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={saveDraft}
+              icon={<Save className="w-4 h-4" />}
+            >
+              Save Draft
             </Button>
             <Button
               onClick={handleSubmit}
