@@ -27,6 +27,7 @@ interface DashboardStats {
 interface UserContext {
   role?: UserRole;
   teamId?: string | null;
+  userId?: string;
 }
 
 export const useDashboardStats = (userContext?: UserContext) => {
@@ -50,7 +51,7 @@ export const useDashboardStats = (userContext?: UserContext) => {
   useEffect(() => {
     fetchDashboardStats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userContext?.role, userContext?.teamId]);
+  }, [userContext?.role, userContext?.teamId, userContext?.userId]);
 
   const fetchDashboardStats = async () => {
     setLoading(true);
@@ -62,17 +63,32 @@ export const useDashboardStats = (userContext?: UserContext) => {
 
       if (jdError) throw jdError;
 
+      // Fetch additional teams for manager
+      let additionalTeamIds: string[] = [];
+      if (userContext?.userId && userContext.role === 'manager') {
+        const { data: additionalTeams } = await supabase
+          .from('user_teams')
+          .select('team_id')
+          .eq('user_id', userContext.userId);
+        additionalTeamIds = (additionalTeams || []).map(t => t.team_id);
+      }
+
+      // Build set of all teams the user manages
+      const allUserTeamIds = new Set(
+        [userContext?.teamId, ...additionalTeamIds].filter(Boolean) as string[]
+      );
+
       // Apply role-based filtering
       // Admin: see all JDs
-      // Manager/Viewer: see all Published + only Draft from their own team
+      // Manager/Viewer: see all Published + only Draft from their teams
       let jds = rawJds;
       if (userContext?.role && userContext.role !== 'admin') {
         jds = rawJds?.filter(jd => {
           // Always show published JDs
           if (jd.status === 'published') return true;
-          // For draft JDs, only show if from user's team
+          // For draft JDs, show if from user's primary or additional teams
           if (jd.status === 'draft') {
-            return jd.team_id === userContext.teamId;
+            return jd.team_id && allUserTeamIds.has(jd.team_id);
           }
           return false;
         }) || [];

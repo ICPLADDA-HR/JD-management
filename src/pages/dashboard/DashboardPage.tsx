@@ -29,6 +29,7 @@ export const DashboardPage = () => {
   const { stats, loading } = useDashboardStats({
     role: user?.role,
     teamId: user?.team_id,
+    userId: user?.id,
   });
 
   if (loading) {
