@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useRef, useCallback, type ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
 
@@ -29,15 +29,12 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const fetchingRef = useRef(false);
-  const mountedRef = useRef(true);
+  // undefined = not yet checked, null = no session, string = has session
+  const [authUserId, setAuthUserId] = useState<string | null | undefined>(undefined);
 
-  const fetchUserProfile = useCallback(async (userId: string, retryCount = 0): Promise<User | null> => {
-    // Prevent duplicate fetches
-    if (fetchingRef.current) return null;
-    fetchingRef.current = true;
-
+  const fetchUserProfile = async (userId: string): Promise<User | null> => {
     try {
+      console.log('[Auth] Fetching profile for:', userId);
       const { data, error } = await supabase
         .from('users')
         .select('id, email, full_name, role, team_id, department_id, is_active')
@@ -45,13 +42,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
-        console.error('[Auth] Error loading user profile:', error);
-        // DON'T sign out - just return null so session stays intact
+        console.error('[Auth] Profile query error:', error);
         return null;
       }
 
       if (data) {
-        // Check if user is deactivated
         if (data.is_active === false) {
           toast.error('บัญชีของคุณถูกระงับการใช้งาน กรุณาติดต่อผู้ดูแลระบบ');
           await supabase.auth.signOut();
@@ -87,7 +82,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           .insert([newUser]);
 
         if (insertError) {
-          console.error('[Auth] Error creating user profile:', insertError);
+          console.error('[Auth] Error creating profile:', insertError);
           return null;
         }
 
@@ -96,65 +91,72 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       return null;
     } catch (err) {
-      console.error(`[Auth] fetchUserProfile error (attempt ${retryCount + 1}):`, err);
-
-      // Retry up to 2 times
-      if (retryCount < 2) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        fetchingRef.current = false;
-        return fetchUserProfile(userId, retryCount + 1);
-      }
-
+      console.error('[Auth] fetchUserProfile error:', err);
       return null;
-    } finally {
-      fetchingRef.current = false;
     }
-  }, []);
+  };
 
+  // Step 1: Listen for auth state changes - ONLY set React state, NO Supabase calls
+  // This avoids Supabase internal deadlock when calling DB queries inside onAuthStateChange
   useEffect(() => {
-    mountedRef.current = true;
-
-    // Use ONLY onAuthStateChange - it fires INITIAL_SESSION on mount
-    // This avoids the race condition between getSession() and onAuthStateChange
+    console.log('[Auth] Setting up onAuthStateChange listener');
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!mountedRef.current) return;
-
-      if (event === 'SIGNED_OUT') {
-        setUser(null);
-        setLoading(false);
-        return;
-      }
-
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('[Auth] onAuthStateChange:', event, session?.user?.id || 'no user');
       if (session?.user) {
-        const profile = await fetchUserProfile(session.user.id);
-        if (mountedRef.current) {
-          setUser(profile);
-          setLoading(false);
-        }
+        setAuthUserId(session.user.id);
       } else {
-        if (mountedRef.current) {
-          setUser(null);
-          setLoading(false);
-        }
+        setAuthUserId(null);
       }
     });
 
-    // Safety timeout - prevent infinite loading if Supabase is unreachable
-    const timeoutId = setTimeout(() => {
-      if (mountedRef.current && loading) {
-        console.warn('[Auth] Timeout after 15 seconds - forcing stop');
-        setLoading(false);
-      }
-    }, 15000);
-
     return () => {
-      mountedRef.current = false;
-      clearTimeout(timeoutId);
       subscription.unsubscribe();
     };
-  }, [fetchUserProfile]);
+  }, []);
+
+  // Step 2: Fetch profile OUTSIDE of onAuthStateChange when authUserId changes
+  useEffect(() => {
+    // Still waiting for onAuthStateChange to fire
+    if (authUserId === undefined) return;
+
+    // No session - not logged in
+    if (authUserId === null) {
+      console.log('[Auth] No session - redirecting to login');
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
+    // Has session - fetch profile
+    let cancelled = false;
+    console.log('[Auth] Session found, fetching profile...');
+
+    fetchUserProfile(authUserId).then((profile) => {
+      if (!cancelled) {
+        console.log('[Auth] Profile loaded:', profile?.email || 'null');
+        setUser(profile);
+        setLoading(false);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authUserId]);
+
+  // Safety timeout
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (loading) {
+        console.warn('[Auth] Timeout after 10 seconds - forcing stop');
+        setLoading(false);
+      }
+    }, 10000);
+
+    return () => clearTimeout(timeoutId);
+  }, [loading]);
 
   const signIn = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -177,7 +179,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         throw new Error('บัญชีของคุณถูกระงับการใช้งาน กรุณาติดต่อผู้ดูแลระบบ');
       }
 
-      // Profile will be fetched by onAuthStateChange listener
+      // Fetch profile immediately for signIn (not inside onAuthStateChange)
+      const profile = await fetchUserProfile(data.user.id);
+      setUser(profile);
+      setLoading(false);
     }
   };
 
@@ -200,7 +205,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     if (error) throw error;
 
-    // Create user profile in users table
     if (data.user) {
       const { error: profileError } = await supabase.from('users').insert([
         {
